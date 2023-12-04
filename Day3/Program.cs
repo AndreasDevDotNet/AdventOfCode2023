@@ -1,6 +1,5 @@
 ﻿
 using AoCToolbox;
-using Day3;
 
 Console.WriteLine("*** AdventOfCode 2023 ***");
 Console.WriteLine("-------------------------");
