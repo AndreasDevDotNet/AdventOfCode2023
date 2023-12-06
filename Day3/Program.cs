@@ -11,6 +11,10 @@ Console.WriteLine($"     Sum of gear ratios: {RunPart2()}");
 Console.WriteLine("-------------------------");
 
 
+const char Void = '.';
+const char Gear = '*';
+
+
 static int RunPart1()
 {
     var engineSchematic = new StringInputProvider("input.txt").ToList();
@@ -22,7 +26,7 @@ static int RunPart1()
         var schematicRow = engineSchematic[row];
         for (int col = 0; col < schematicRow.Length; col++)
         {
-            if (schematicRow[col] != '.')
+            if (schematicRow[col] != Void)
             {
                 if(isAdjacentToSymbol(row, col, engineSchematic, out char symbol, out int symbolRow, out int symbolCol))
                 {
@@ -45,17 +49,18 @@ static int RunPart2()
     var engineSchematic = new StringInputProvider("input.txt").ToList();
 
     int gearRatio = 0;
+    List<Tuple<int, int>> usedGearPartNumbersStartIndex = new List<Tuple<int,int>>();
 
     for (int row = 0; row < engineSchematic.Count; row++)
     {
         var schematicRow = engineSchematic[row];
         for (int col = 0; col < schematicRow.Length; col++)
         {
-            if (schematicRow[col] != '.')
+            if (schematicRow[col] != Void)
             {
                 if (isAdjacentToSymbol(row, col, engineSchematic, out char symbol, out int symbolRow, out int symbolCol, false))
                 {
-                    if (symbol == '*')
+                    if (symbol == Gear)
                     {
                         var partnumber1 = getPartNumber(row, col, engineSchematic, out int startIndexOfNumber);
 
@@ -66,9 +71,10 @@ static int RunPart2()
                         {
                             var partnumber2 = getPartNumber(partNoRow, partNoCol,engineSchematic, out int startIndexOfNumber1);
 
-                            if (partnumber2 != string.Empty)
+                            if (partnumber2 != string.Empty && !usedGearPartNumbersStartIndex.Any(x => x.Item1 == partNoRow && x.Item2 == startIndexOfNumber1))
                             {
                                 gearRatio += int.Parse(partnumber1) * int.Parse(partnumber2);
+                                usedGearPartNumbersStartIndex.Add(new Tuple<int, int>(partNoRow, startIndexOfNumber1));
                             } 
 
                             // If the adjecent part is on the same row skip it
@@ -97,7 +103,7 @@ static bool isAdjecentToPart(int row, int col, int part1Row,List<string> engineS
     {
         var rowbelow = engineSchematic[row + 1];
         var adjColLeft = rowbelow[col - 1];
-        if (adjColLeft != '.' && char.IsNumber(adjColLeft))
+        if (adjColLeft != Void && char.IsNumber(adjColLeft))
         {
             partNoCol = col - 1;
             partNoRow = row + 1;
@@ -105,7 +111,7 @@ static bool isAdjecentToPart(int row, int col, int part1Row,List<string> engineS
         }
 
         var adjColAbove = rowbelow[col];
-        if (adjColAbove != '.' && char.IsNumber(adjColAbove))
+        if (adjColAbove != Void && char.IsNumber(adjColAbove))
         {
             partNoCol = col;
             partNoRow = row + 1;
@@ -115,7 +121,7 @@ static bool isAdjecentToPart(int row, int col, int part1Row,List<string> engineS
         if (col + 1 != rowbelow.Length)
         {
             var adjColRight = rowbelow[col + 1];
-            if (adjColRight != '.' && char.IsNumber(adjColRight))
+            if (adjColRight != Void && char.IsNumber(adjColRight))
             {
                 partNoCol = col + 1;
                 partNoRow = row + 1;
@@ -127,7 +133,7 @@ static bool isAdjecentToPart(int row, int col, int part1Row,List<string> engineS
     if (col + 1 != engineSchematic[row].Length)
     {
         // go right
-        if (engineSchematic[row][col + 1] != '.' && char.IsNumber(engineSchematic[row][col + 1]))
+        if (engineSchematic[row][col + 1] != Void && char.IsNumber(engineSchematic[row][col + 1]))
         {
             partNoCol = col + 1;
             partNoRow = row;
@@ -138,7 +144,7 @@ static bool isAdjecentToPart(int row, int col, int part1Row,List<string> engineS
     if(col - 1 != engineSchematic[row].Length && row != part1Row) // If part1 is on the same row as the symbol we will get the same part
     {
         // go left
-        if (engineSchematic[row][col - 1] != '.' && char.IsNumber(engineSchematic[row][col - 1]))
+        if (engineSchematic[row][col - 1] != Void && char.IsNumber(engineSchematic[row][col - 1]))
         {
             partNoCol = col - 1;
             partNoRow = row;
@@ -228,7 +234,7 @@ static bool isAdjacentToSymbol(int row, int col, List<string> engineSchematic, o
         {
             var rowabove = engineSchematic[row - 1];
             var adjColLeft = rowabove[col - 1];
-            if (adjColLeft != '.' && !char.IsNumber(adjColLeft))
+            if (adjColLeft != Void && !char.IsNumber(adjColLeft))
             {
                 symbol = adjColLeft;
                 symbolCol = col - 1;
@@ -237,7 +243,7 @@ static bool isAdjacentToSymbol(int row, int col, List<string> engineSchematic, o
             }
 
             var adjColAbove = rowabove[col];
-            if (adjColAbove != '.' && !char.IsNumber(adjColAbove))
+            if (adjColAbove != Void && !char.IsNumber(adjColAbove))
             {
                 symbol = adjColAbove;
                 symbolCol = col;
@@ -248,7 +254,7 @@ static bool isAdjacentToSymbol(int row, int col, List<string> engineSchematic, o
             if (col + 1 != rowabove.Length)
             {
                 var adjColRight = rowabove[col + 1];
-                if (adjColRight != '.' && !char.IsNumber(adjColRight))
+                if (adjColRight != Void && !char.IsNumber(adjColRight))
                 {
                     symbol = adjColRight;
                     symbolCol = col + 1;
@@ -264,7 +270,7 @@ static bool isAdjacentToSymbol(int row, int col, List<string> engineSchematic, o
     {
         var rowbelow = engineSchematic[row + 1];
         var adjColLeft = rowbelow[col - 1];
-        if (adjColLeft != '.' && !char.IsNumber(adjColLeft))
+        if (adjColLeft != Void && !char.IsNumber(adjColLeft))
         {
             symbol = adjColLeft;
             symbolCol = col - 1;
@@ -273,7 +279,7 @@ static bool isAdjacentToSymbol(int row, int col, List<string> engineSchematic, o
         }
 
         var adjColAbove = rowbelow[col];
-        if (adjColAbove != '.' && !char.IsNumber(adjColAbove))
+        if (adjColAbove != Void && !char.IsNumber(adjColAbove))
         {
             symbol = adjColAbove;
             symbolCol = col;
@@ -284,7 +290,7 @@ static bool isAdjacentToSymbol(int row, int col, List<string> engineSchematic, o
         if (col + 1 != rowbelow.Length)
         {
             var adjColRight = rowbelow[col + 1];
-            if (adjColRight != '.' && !char.IsNumber(adjColRight))
+            if (adjColRight != Void && !char.IsNumber(adjColRight))
             {
                 symbol = adjColRight;
                 symbolCol = col + 1;
@@ -297,7 +303,7 @@ static bool isAdjacentToSymbol(int row, int col, List<string> engineSchematic, o
     // go left
     if (col > 0)
     {
-        if (engineSchematic[row][col - 1] != '.' && !char.IsNumber(engineSchematic[row][col - 1]))
+        if (engineSchematic[row][col - 1] != Void && !char.IsNumber(engineSchematic[row][col - 1]))
         {
             symbol = engineSchematic[row][col - 1];
             symbolCol = col - 1;
@@ -309,7 +315,7 @@ static bool isAdjacentToSymbol(int row, int col, List<string> engineSchematic, o
     if (col + 1 != engineSchematic[row].Length)
     {
         // go right
-        if (engineSchematic[row][col + 1] != '.' && !char.IsNumber(engineSchematic[row][col + 1]))
+        if (engineSchematic[row][col + 1] != Void && !char.IsNumber(engineSchematic[row][col + 1]))
         {
             symbol = engineSchematic[row][col + 1];
             symbolCol = col + 1;
@@ -318,7 +324,7 @@ static bool isAdjacentToSymbol(int row, int col, List<string> engineSchematic, o
         } 
     }
 
-    symbol = '.';
+    symbol = Void;
     symbolCol = 0;
     symbolRow = 0;
     return false;

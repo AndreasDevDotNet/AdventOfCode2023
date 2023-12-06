@@ -101,4 +101,27 @@ public static class ListExtenstions
         return input.GetSlidingWindow(lastIndexOfWindow, windowLength)
             .Sum(w => Convert.ToInt64(w));
     }
+
+    public static List<List<string>> SplitStringListBy(this List<string> input, string splitValue)
+    {
+        var listOfLists = new List<List<string>>();
+
+        var tempList = new List<string>();
+
+        foreach (var item in input)
+        {
+            if(item != splitValue)
+            {
+                tempList.Add(item);
+            }
+            else
+            {
+                listOfLists.Add(tempList);
+                tempList = new List<string>();
+            }
+        }
+
+
+        return listOfLists;
+    }
 }
