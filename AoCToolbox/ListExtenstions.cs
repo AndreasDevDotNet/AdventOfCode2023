@@ -124,4 +124,29 @@ public static class ListExtenstions
 
         return listOfLists;
     }
+
+    public static List<int> CreateIntListFromTupleRange(this Tuple<int, int> tuple)
+    {
+        var list = new List<int>();
+
+        for (int i = tuple.Item1; i < tuple.Item2+1; i++)
+        {
+            list.Add(i);
+        }
+
+        return list;
+    }
+
+    public static bool Contains(this List<int> source, List<int> compareList)
+    {
+        foreach (var item in compareList) 
+        { 
+            if(source.Contains(item))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

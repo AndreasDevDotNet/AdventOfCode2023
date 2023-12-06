@@ -57,7 +57,7 @@ static long RunPart2()
 
         foreach (var seedRange in seedRanges)
         {
-            for (long i = seedRange.Item1; i < (seedRange.Item1 + seedRange.Item2); i++)
+            for (long i = 0; i < (seedRange.Item1 + seedRange.Item2); i++)
             {
                 long currentSeed = seedRange.Item1 + i;
 
