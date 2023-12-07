@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AoCToolbox
 {
-    public class DefaultDictionary<TKey, TValue> : IDictionary<TKey, TValue> where TKey : notnull
+    public sealed class DefaultDict<TKey, TValue> : IDictionary<TKey, TValue> where TKey : notnull
     {
         private readonly Dictionary<TKey, TValue> _dictionary;
         private readonly Func<TKey, TValue> _defaultSelector;
@@ -23,13 +23,13 @@ namespace AoCToolbox
             set => IndexSetInternal(key, value);
         }
 
-        public DefaultDictionary(Func<TKey, TValue> defaultSelector)
+        public DefaultDict(Func<TKey, TValue> defaultSelector)
         {
             _dictionary = new Dictionary<TKey, TValue>();
             _defaultSelector = defaultSelector;
         }
 
-        public DefaultDictionary(TValue defaultValue) : this(defaultSelector: _ => defaultValue)
+        public DefaultDict(TValue defaultValue) : this(defaultSelector: _ => defaultValue)
         {
         }
 
