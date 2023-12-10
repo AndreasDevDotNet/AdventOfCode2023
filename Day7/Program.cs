@@ -3,6 +3,7 @@
 Console.WriteLine("*** AdventOfCode 2023 ***");
 Console.WriteLine("-------------------------");
 Console.WriteLine("* December 7th: *");
+Console.WriteLine("   Problem: Camel Cards");
 Console.WriteLine("   Part #1");
 Console.WriteLine($"     Total winnings: {RunPart1(inputData)}");
 Console.WriteLine("   Part #2");

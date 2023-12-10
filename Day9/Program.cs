@@ -5,6 +5,7 @@ var inputData = File.ReadAllLines("input.txt");
 Console.WriteLine("*** AdventOfCode 2023 ***");
 Console.WriteLine("-------------------------");
 Console.WriteLine("* December 9th: *");
+Console.WriteLine("   Problem: Mirage Maintenance");
 Console.WriteLine("   Part #1");
 Console.WriteLine($"      Sum of these extrapolated values(Forward) : {RunPart1(inputData)}");
 Console.WriteLine("   Part #2");

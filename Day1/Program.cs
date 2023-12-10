@@ -3,6 +3,7 @@
 Console.WriteLine("*** AdventOfCode 2023 ***");
 Console.WriteLine("-------------------------");
 Console.WriteLine("* December 1st: *");
+Console.WriteLine("   Problem: Trebuchet?!");
 Console.WriteLine("   Part #1");
 Console.WriteLine($"     Calibration value: {RunPart1()}");
 Console.WriteLine("   Part #2");

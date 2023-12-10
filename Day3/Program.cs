@@ -4,6 +4,7 @@ using AoCToolbox;
 Console.WriteLine("*** AdventOfCode 2023 ***");
 Console.WriteLine("-------------------------");
 Console.WriteLine("* December 3rd: *");
+Console.WriteLine("   Problem: Gear Ratios");
 Console.WriteLine("   Part #1");
 Console.WriteLine($"     Sum of partnumbers: {RunPart1()}");
 Console.WriteLine("   Part #2");

@@ -7,6 +7,7 @@ var rightLeftInput = File.ReadAllText("rightleftinput.txt");
 Console.WriteLine("*** AdventOfCode 2023 ***");
 Console.WriteLine("-------------------------");
 Console.WriteLine("* December 8th: *");
+Console.WriteLine("   Problem: Haunted Wasteland");
 Console.WriteLine("   Part #1");
 Console.WriteLine($"      Number of steps to reach ZZZ : {RunPart1(inputData, rightLeftInput)}");
 Console.WriteLine("   Part #1");

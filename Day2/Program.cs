@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 Console.WriteLine("*** AdventOfCode 2023 ***");
 Console.WriteLine("-------------------------");
 Console.WriteLine("* December 2nd: *");
+Console.WriteLine("   Problem: Cube Conundrum");
 Console.WriteLine("   Part #1");
 Console.WriteLine($"     Sum Of GameIds: {RunPart1()}");
 Console.WriteLine("   Part #2");

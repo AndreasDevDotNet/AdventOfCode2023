@@ -4,6 +4,7 @@ using AoCToolbox;
 Console.WriteLine("*** AdventOfCode 2023 ***");
 Console.WriteLine("-------------------------");
 Console.WriteLine("* December 4th: *");
+Console.WriteLine("   Problem: Scratchcards");
 Console.WriteLine("   Part #1");
 Console.WriteLine($"     Number of points: {RunPart1()}");
 Console.WriteLine("   Part #2");

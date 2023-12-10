@@ -3,6 +3,7 @@
 Console.WriteLine("*** AdventOfCode 2023 ***");
 Console.WriteLine("-------------------------");
 Console.WriteLine("* December 6th: *");
+Console.WriteLine("   Problem: Wait For It");
 Console.WriteLine("   Part #1");
 
 var input = File.ReadAllLines("input.txt");
