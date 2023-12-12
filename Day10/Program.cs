@@ -16,7 +16,7 @@ Console.WriteLine("-------------------------");
 Console.WriteLine("* December 10th: *");
 Console.WriteLine("   Problem: PipeMaze");
 Console.WriteLine("   Part #1");
-Console.WriteLine($"      Number of steps from starting position : {RunPart1(inputData)}");
+Console.WriteLine($"      Number of steps until farthest in the loop : {RunPart1(inputData)}");
 Console.WriteLine("   Part #2");
 Console.WriteLine($"      Number of tiles inside the loop : {RunPart2(inputData)}");
 Console.WriteLine("-------------------------");
