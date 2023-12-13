@@ -1,4 +1,4 @@
-﻿var inputData = File.ReadAllLines("input.txt");
+﻿var inputData = File.ReadAllLines("testinput.txt");
 
 var cache = new Dictionary<string, long>();
 
