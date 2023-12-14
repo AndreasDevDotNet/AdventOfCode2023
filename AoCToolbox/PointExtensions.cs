@@ -57,4 +57,24 @@ public static class PointExtensions
             absDiffX < 2 &&
             absDiffY < 2;
     }
+
+    public static bool IsNeighbourWithDiagnoalsOnRange(this Point point, IEnumerable<Point> otherPoints)
+    {
+        foreach (var otherPoint in otherPoints)
+        {
+            var absDiffX = Math.Abs(point.X - otherPoint.X);
+            var absDiffY = Math.Abs(point.Y - otherPoint.Y);
+
+            var isNeighbour = absDiffX + absDiffY > 0 &&
+                absDiffX < 2 &&
+                absDiffY < 2;
+            
+            if (isNeighbour)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

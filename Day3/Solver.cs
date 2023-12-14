@@ -1,4 +1,5 @@
 ﻿using AoCToolbox;
+using System.Drawing;
 
 namespace Day3
 {
@@ -6,6 +7,12 @@ namespace Day3
     {
         const char Void = '.';
         const char Gear = '*';
+
+        bool schematicBuilt = false;
+
+        Dictionary<Point,char> symobolDictionary = new Dictionary<Point,char>();
+        Dictionary<Point[],int> partDictionary = new Dictionary<Point[],int>();
+        Dictionary<Point,char> gearDictionary = new Dictionary<Point,char>();
 
         public override string GetDayString()
         {
@@ -25,42 +32,33 @@ namespace Day3
         public override object Run(int part)
         {
             var inputData = GetInputLines();
+            buildSchematic(inputData);
 
             var value = part switch
             {
-                1 => RunPart1(inputData),
-                2 => RunPart2(inputData)
+                1 => RunPart1(),
+                2 => RunPart2()
             };
 
             return part switch
             {
                 1 => $" Part #1\n  Sum of partnumbers: {value}",
-                2 => $" Part #2\n  Sum of gear ratios (Not correct!!): {value}",
+                2 => $" Part #2\n  Sum of gear ratios: {value}",
             };
         }
 
-        private object RunPart1(string[] inputData)
+        private object RunPart1()
         {
-            var engineSchematic = inputData.ToList();
-
             int sumOfParts = 0;
 
-            for (int row = 0; row < engineSchematic.Count; row++)
+            foreach (var partPosition in partDictionary)
             {
-                var schematicRow = engineSchematic[row];
-                for (int col = 0; col < schematicRow.Length; col++)
+                foreach (var pos in partPosition.Key)
                 {
-                    if (schematicRow[col] != Void)
+                    if(isAdjacentToSymbol(pos))
                     {
-                        if (isAdjacentToSymbol(row, col, engineSchematic, out char symbol, out int symbolRow, out int symbolCol))
-                        {
-                            var partnumber = getPartNumber(row, col, engineSchematic, out int startIndexOfNumber);
-
-                            // step forward to the end of the partnumber
-                            col = startIndexOfNumber + partnumber.Length;
-
-                            sumOfParts += int.Parse(partnumber);
-                        }
+                        sumOfParts += partPosition.Value;
+                        break;
                     }
                 }
             }
@@ -68,290 +66,81 @@ namespace Day3
             return sumOfParts;
         }
 
-        private object RunPart2(string[] inputData)
+        private object RunPart2()
         {
-            var engineSchematic = inputData.ToList();
-
             int gearRatios = 0;
-            List<Tuple<int, int>> usedGearPartNumbersStartIndex = new List<Tuple<int, int>>();
 
-            for (int row = 0; row < engineSchematic.Count; row++)
+            foreach (var possibleGear in gearDictionary)
             {
-                var schematicRow = engineSchematic[row];
-                for (int col = 0; col < schematicRow.Length; col++)
+                var partNumbersConnectedToGear = new List<int>();
+                foreach (var partPosition in partDictionary)
                 {
-                    if (schematicRow[col] != Void)
+                    if(possibleGear.Key.IsNeighbourWithDiagnoalsOnRange(partPosition.Key))
                     {
-                        if (isAdjacentToSymbol(row, col, engineSchematic, out char symbol, out int symbolRow, out int symbolCol, false))
-                        {
-                            if (symbol == Gear)
-                            {
-                                var partnumber1 = getPartNumber(row, col, engineSchematic, out int startIndexOfNumber);
-
-                                // step forward to the end of the partnumber
-                                col = startIndexOfNumber + partnumber1.Length;
-
-                                if (isAdjecentToPart(symbolRow, symbolCol, row, engineSchematic, out int partNoRow, out int partNoCol))
-                                {
-                                    var partnumber2 = getPartNumber(partNoRow, partNoCol, engineSchematic, out int startIndexOfNumber1);
-
-                                    if (partnumber2 != string.Empty && !usedGearPartNumbersStartIndex.Any(x => x.Item1 == partNoRow && x.Item2 == startIndexOfNumber1))
-                                    {
-                                        gearRatios += int.Parse(partnumber1) * int.Parse(partnumber2);
-                                        usedGearPartNumbersStartIndex.Add(new Tuple<int, int>(partNoRow, startIndexOfNumber1));
-                                    }
-
-                                    // If the adjecent part is on the same row skip it
-                                    if (partNoRow == row)
-                                    {
-                                        col += partnumber2.Length;
-                                    }
-                                }
-                            }
-
-                        }
+                        partNumbersConnectedToGear.Add(partPosition.Value);
                     }
+                }
+                if(partNumbersConnectedToGear.Count == 2)
+                {
+                    gearRatios += partNumbersConnectedToGear[0] * partNumbersConnectedToGear[1];
                 }
             }
 
             return gearRatios;
         }
 
-        private bool isAdjecentToPart(int row, int col, int part1Row, List<string> engineSchematic, out int partNoRow, out int partNoCol)
+        private bool isAdjacentToSymbol(Point partPos)
         {
-            partNoRow = 0;
-            partNoCol = 0;
-
-            // Go one row down 
-            if (row + 1 < engineSchematic.Count && col > 0)
+            foreach(var symbolPos in symobolDictionary)
             {
-                var rowbelow = engineSchematic[row + 1];
-                var adjColLeft = rowbelow[col - 1];
-                if (adjColLeft != Void && char.IsNumber(adjColLeft))
+                if(partPos.IsNeighbourWithDiagnoals(symbolPos.Key))
                 {
-                    partNoCol = col - 1;
-                    partNoRow = row + 1;
-                    return true;
-                }
-
-                var adjColAbove = rowbelow[col];
-                if (adjColAbove != Void && char.IsNumber(adjColAbove))
-                {
-                    partNoCol = col;
-                    partNoRow = row + 1;
-                    return true;
-                }
-
-                if (col + 1 != rowbelow.Length)
-                {
-                    var adjColRight = rowbelow[col + 1];
-                    if (adjColRight != Void && char.IsNumber(adjColRight))
-                    {
-                        partNoCol = col + 1;
-                        partNoRow = row + 1;
-                        return true;
-                    }
-                }
-            }
-
-            if (col + 1 != engineSchematic[row].Length)
-            {
-                // go right
-                if (engineSchematic[row][col + 1] != Void && char.IsNumber(engineSchematic[row][col + 1]))
-                {
-                    partNoCol = col + 1;
-                    partNoRow = row;
                     return true;
                 }
             }
 
-            if (col - 1 != engineSchematic[row].Length && row != part1Row) // If part1 is on the same row as the symbol we will get the same part
-            {
-                // go left
-                if (engineSchematic[row][col - 1] != Void && char.IsNumber(engineSchematic[row][col - 1]))
-                {
-                    partNoCol = col - 1;
-                    partNoRow = row;
-                    return true;
-                }
-
-            }
-
-            partNoCol = 0;
-            partNoRow = 0;
             return false;
         }
 
-        private string getPartNumber(int row, int col, List<string> engineSchematic, out int startIndexOfNumber)
+        private void buildSchematic(string[] inputData)
         {
-            string partNumber = "";
-            startIndexOfNumber = 0;
+            if (schematicBuilt)
+                return;
 
-            // Go forward
-            if (col == 0)
+            for (int row = 0; row < inputData.Length; row++)
             {
-                var chars = engineSchematic[row].TakeWhile(x => char.IsNumber(x));
-                partNumber = String.Concat(chars);
-                return partNumber;
-            }
-            else
-            {
-                var schematicRow = engineSchematic[row];
-
-                if (!char.IsNumber(schematicRow[col - 1]))
+                var schematicRow = inputData[row];
+                for (int col = 0; col < schematicRow.Length; col++)
                 {
-                    startIndexOfNumber = col;
-                }
-
-                if (startIndexOfNumber != col)
-                {
-                    // step back until the start of the number
-                    for (int i = col; i > 0; i--)
+                    if (schematicRow[col] != Void)
                     {
-                        if (!char.IsNumber(schematicRow[i]))
+                        if (char.IsNumber(schematicRow[col]))
                         {
-                            startIndexOfNumber = i + 1;
-                            i = 0;
-                        }
-
-                        if (startIndexOfNumber == 0)
-                        {
-                            if (i - 1 == 0 && char.IsNumber(schematicRow[i - 1]))
+                            var numCounter = col;
+                            string partNo = "";
+                            var numPoints = new List<Point>();
+                            while (numCounter < schematicRow.Length && char.IsNumber(schematicRow[numCounter]))
                             {
-                                startIndexOfNumber = 0;
-                                i = 0;
+                                partNo += schematicRow[numCounter];
+                                numPoints.Add(new Point(numCounter, row));
+                                numCounter++;
                             }
-
-                            if (i - 1 == 0 && !char.IsNumber(schematicRow[i - 1]))
-                            {
-                                startIndexOfNumber = 1;
-                                i = 0;
-                            }
+                            partDictionary.Add(numPoints.ToArray(), int.Parse(partNo));
+                            col = numCounter-1;
                         }
-                    }
-                }
-
-                var numberChars = new List<char>();
-                for (int i = startIndexOfNumber; i < schematicRow.Length; i++)
-                {
-                    if (char.IsNumber(schematicRow[i]))
-                    {
-                        numberChars.Add(schematicRow[i]);
-                    }
-                    else
-                    {
-                        i = schematicRow.Length;
-                    }
-                }
-
-                partNumber = String.Concat(numberChars);
-                return partNumber;
-            }
-        }
-
-        private bool isAdjacentToSymbol(int row, int col, List<string> engineSchematic, out char symbol, out int symbolRow, out int symbolCol, bool checkRowAbove = true)
-        {
-            if (checkRowAbove)
-            {
-                // Go one row up 
-                if (row > 0 && col > 0)
-                {
-                    var rowabove = engineSchematic[row - 1];
-                    var adjColLeft = rowabove[col - 1];
-                    if (adjColLeft != Void && !char.IsNumber(adjColLeft))
-                    {
-                        symbol = adjColLeft;
-                        symbolCol = col - 1;
-                        symbolRow = row - 1;
-                        return true;
-                    }
-
-                    var adjColAbove = rowabove[col];
-                    if (adjColAbove != Void && !char.IsNumber(adjColAbove))
-                    {
-                        symbol = adjColAbove;
-                        symbolCol = col;
-                        symbolRow = row - 1;
-                        return true;
-                    }
-
-                    if (col + 1 != rowabove.Length)
-                    {
-                        var adjColRight = rowabove[col + 1];
-                        if (adjColRight != Void && !char.IsNumber(adjColRight))
+                        else
                         {
-                            symbol = adjColRight;
-                            symbolCol = col + 1;
-                            symbolRow = row - 1;
-                            return true;
+                            if (schematicRow[col] == Gear)
+                            {
+                                gearDictionary.Add(new Point(col, row), schematicRow[col]);
+                            }
+                            symobolDictionary.Add(new Point(col, row), schematicRow[col]);
                         }
                     }
                 }
             }
 
-            // Go one row down 
-            if (row + 1 < engineSchematic.Count && col > 0)
-            {
-                var rowbelow = engineSchematic[row + 1];
-                var adjColLeft = rowbelow[col - 1];
-                if (adjColLeft != Void && !char.IsNumber(adjColLeft))
-                {
-                    symbol = adjColLeft;
-                    symbolCol = col - 1;
-                    symbolRow = row + 1;
-                    return true;
-                }
-
-                var adjColAbove = rowbelow[col];
-                if (adjColAbove != Void && !char.IsNumber(adjColAbove))
-                {
-                    symbol = adjColAbove;
-                    symbolCol = col;
-                    symbolRow = row + 1;
-                    return true;
-                }
-
-                if (col + 1 != rowbelow.Length)
-                {
-                    var adjColRight = rowbelow[col + 1];
-                    if (adjColRight != Void && !char.IsNumber(adjColRight))
-                    {
-                        symbol = adjColRight;
-                        symbolCol = col + 1;
-                        symbolRow = row + 1;
-                        return true;
-                    }
-                }
-            }
-
-            // go left
-            if (col > 0)
-            {
-                if (engineSchematic[row][col - 1] != Void && !char.IsNumber(engineSchematic[row][col - 1]))
-                {
-                    symbol = engineSchematic[row][col - 1];
-                    symbolCol = col - 1;
-                    symbolRow = row;
-                    return true;
-                }
-            }
-
-            if (col + 1 != engineSchematic[row].Length)
-            {
-                // go right
-                if (engineSchematic[row][col + 1] != Void && !char.IsNumber(engineSchematic[row][col + 1]))
-                {
-                    symbol = engineSchematic[row][col + 1];
-                    symbolCol = col + 1;
-                    symbolRow = row;
-                    return true;
-                }
-            }
-
-            symbol = Void;
-            symbolCol = 0;
-            symbolRow = 0;
-            return false;
+            schematicBuilt = true;
         }
     }
 }
