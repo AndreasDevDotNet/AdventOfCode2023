@@ -1,7 +1,7 @@
 ﻿using Day1;
 
 var solver = new Solver();
-solver.InputPath = "input.txt";
+solver.InputPath = "1input.txt";
 
 Console.WriteLine("**** AdventOfCode 2023 ****");
 Console.WriteLine("---------------------------");

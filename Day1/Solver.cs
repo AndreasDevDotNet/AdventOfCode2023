@@ -30,8 +30,8 @@ namespace Day1
 
             return part switch
             {
-                1 => $" Part #{part}\n  Calibration value: {value}",
-                2 => $" Part #{part}\n  Real calibration value: {value}"
+                1 => $" Part #1\n  Calibration value: {value}",
+                2 => $" Part #2\n  Real calibration value: {value}"
             };
         }
 

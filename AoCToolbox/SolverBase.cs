@@ -39,6 +39,12 @@ namespace AoCToolbox
             return File.ReadAllText(InputPath).TrimEnd();
         }
 
+        protected StreamReader GetInputStream()
+        {
+            AssertInputExists();
+            return new StreamReader(InputPath);
+        }
+
         protected IEnumerable<T> ParseInputLines<T>(Func<string, T> parseFunc)
         {
             return GetInputLines().Select(parseFunc);
