@@ -13,6 +13,8 @@ foreach (var solver in solverList)
     Console.WriteLine(solver.Run(1), Color.LimeGreen);
     Console.WriteLine(solver.Run(2), Color.LimeGreen);
     Console.WriteLine(solver.GetDivider(), Color.OrangeRed);
+
+    Thread.Sleep(2000);
 }
 
 List<SolverBase> createSolverList()
@@ -31,7 +33,8 @@ List<SolverBase> createSolverList()
         new Day11.Solver(){InputPath = "11input.txt" },
         new Day12.Solver(){InputPath = "12input.txt" },
         new Day13.Solver(){InputPath = "13input.txt" }, 
-        new Day14.Solver(){InputPath = "14input.txt"}
+        new Day14.Solver(){InputPath = "14input.txt"},
+        new Day15.Solver(){InputPath = "15input.txt"},
     };
 
     return solverList;
