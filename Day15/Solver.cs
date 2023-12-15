@@ -38,30 +38,7 @@ namespace Day15
 
         private object RunPart1(string inputData)
         {
-            var stepsToParse = inputData.Split(',');
-
-            var resultSum = 0;
-
-            foreach ( var step in stepsToParse ) 
-            {
-                resultSum += hashStep(step);                
-            }
-
-            return resultSum;
-        }
-
-        private int hashStep(string step)
-        {
-            int hash = 0;
-            for ( var i = 0;i<step.Length;i++)
-            {
-                var charAtIndex = step[i];
-                hash += charAtIndex;
-                hash *= 17;
-                hash %= 256;
-            }
-
-            return hash;
+            return inputData.Split(',').Select(s => s.Aggregate(0,(h,c) => (h + c)*17%256)).Sum();             
         }
 
         private object RunPart2(string inputData)
@@ -111,6 +88,20 @@ namespace Day15
             }
 
             return focusPower;
+        }
+
+        private int hashStep(string step)
+        {
+            int hash = 0;
+            for (var i = 0; i < step.Length; i++)
+            {
+                var charAtIndex = step[i];
+                hash += charAtIndex;
+                hash *= 17;
+                hash %= 256;
+            }
+
+            return hash;
         }
 
     }
