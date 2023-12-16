@@ -25,7 +25,7 @@ List<SolverBase> createSolverList()
         new Day2.Solver(){InputPath = "2input.txt"},
         new Day3.Solver(){InputPath = "3input.txt"},
         new Day4.Solver(){InputPath = "4input.txt"},
-        //new Day5.Solver(){InputPath = "5input.txt"},
+        new Day5.Solver(){InputPath = "5input.txt"},
         new Day6.Solver(){InputPath = "6input.txt"},
         new Day7.Solver(){InputPath = "7input.txt"},
         new Day8.Solver(){InputPath = "8input.txt"},
@@ -35,6 +35,8 @@ List<SolverBase> createSolverList()
         new Day13.Solver(){InputPath = "13input.txt" }, 
         new Day14.Solver(){InputPath = "14input.txt"},
         new Day15.Solver(){InputPath = "15input.txt"},
+        new Day16.Solver(){InputPath = "16input.txt"},
+        new Day17.Solver(){InputPath = "17input.txt"},
     };
 
     return solverList;

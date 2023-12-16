@@ -38,7 +38,7 @@ namespace Day15
 
         private object RunPart1(string inputData)
         {
-            return inputData.Split(',').Select(s => s.Aggregate(0,(h,c) => (h + c)*17%256)).Sum();             
+            return inputData.Split(',').Select(s => s.Aggregate(0,(h, c) => (h + c) * 17 % 256)).Sum();             
         }
 
         private object RunPart2(string inputData)
