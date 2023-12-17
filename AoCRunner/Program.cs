@@ -29,6 +29,7 @@ List<SolverBase> createSolverList()
         new Day6.Solver(){InputPath = "6input.txt"},
         new Day7.Solver(){InputPath = "7input.txt"},
         new Day8.Solver(){InputPath = "8input.txt"},
+        new Day9.Solver(){InputPath = "9input.txt"},
         new Day10.Solver(){InputPath = "10input.txt" },
         new Day11.Solver(){InputPath = "11input.txt" },
         new Day12.Solver(){InputPath = "12input.txt" },
