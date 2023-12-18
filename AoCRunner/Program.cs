@@ -10,8 +10,8 @@ foreach (var solver in solverList)
 {
     Console.WriteLine(solver.GetDayString(), Color.OrangeRed);
     Console.WriteLine(solver.GetProblemName(), Color.FromArgb(244, 212, 255));
-    Console.WriteLine(solver.Run(1), Color.LimeGreen);
-    Console.WriteLine(solver.Run(2), Color.LimeGreen);
+    Console.WriteLine(solver.Run(1), Color.Wheat);
+    Console.WriteLine(solver.Run(2), Color.Wheat);
     Console.WriteLine(solver.GetDivider(), Color.OrangeRed);
 
     Thread.Sleep(2000);
@@ -38,6 +38,7 @@ List<SolverBase> createSolverList()
         new Day15.Solver(){InputPath = "15input.txt"},
         new Day16.Solver(){InputPath = "16input.txt"},
         new Day17.Solver(){InputPath = "17input.txt"},
+        new Day18.Solver(){InputPath = "18input.txt"},
     };
 
     return solverList;
