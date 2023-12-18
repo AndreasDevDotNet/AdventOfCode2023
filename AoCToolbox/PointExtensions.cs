@@ -77,4 +77,34 @@ public static class PointExtensions
 
         return false;
     }
+
+    // Shoelace formula, found it on the internet:
+    // https://rosettacode.org/wiki/Shoelace_formula_for_polygonal_area#C#
+    public static double ShoelaceArea(this List<Point> polygon)
+    {
+        var n = polygon.Count;
+        var result = 0.0;
+        for (var i = 0; i < n - 1; i++)
+        {
+            result += polygon[i].Y * polygon[i + 1].X - polygon[i + 1].Y * polygon[i].X;
+        }
+
+        result = Math.Abs(result + polygon[n - 1].Y * polygon[0].X - polygon[0].Y * polygon[n - 1].X) / 2.0;
+        return result;
+    }
+
+    // Shoelace formula, found it on the internet:
+    // https://rosettacode.org/wiki/Shoelace_formula_for_polygonal_area#C#
+    public static double ShoelaceArea(this List<(long Row, long Col)> polygon)
+    {
+        var n = polygon.Count;
+        var result = 0.0;
+        for (var i = 0; i < n - 1; i++)
+        {
+            result += polygon[i].Row * polygon[i + 1].Col - polygon[i + 1].Row * polygon[i].Col;
+        }
+
+        result = Math.Abs(result + polygon[n - 1].Row * polygon[0].Col - polygon[0].Row * polygon[n - 1].Col) / 2.0;
+        return result;
+    }
 }

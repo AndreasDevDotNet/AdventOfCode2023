@@ -1,4 +1,5 @@
 ﻿using AoCToolbox;
+using System.Drawing;
 using System.Globalization;
 
 namespace Day18
@@ -39,9 +40,9 @@ namespace Day18
 
         private object RunPart1(string[] inputData)
         {
-            var polygon = new List<(long Row, long Col)>();
+            var polygon = new List<Point>();
 
-            (long Row, long Col) currentPosition = (0, 0);
+            var currentPosition = new Point(0, 0);
             
             var edge = 0.0;
 
@@ -53,17 +54,17 @@ namespace Day18
                 var length = int.Parse(move[1]);
                 currentPosition = move[0] switch
                 {
-                    "R" => (currentPosition.Row, currentPosition.Col + length),
-                    "D" => (currentPosition.Row + length, currentPosition.Col),
-                    "L" => (currentPosition.Row, currentPosition.Col - length),
-                    "U" => (currentPosition.Row - length, currentPosition.Col),
+                    "R" => new Point(currentPosition.X + length, currentPosition.Y),
+                    "D" => new Point(currentPosition.X, currentPosition.Y + length),
+                    "L" => new Point(currentPosition.X - length, currentPosition.Y),
+                    "U" => new Point(currentPosition.X, currentPosition.Y - length),
                     _ => throw new Exception("Unknown direction")
                 };
 
                 edge += length;
             }
 
-            return Area(polygon) + edge / 2 + 1;
+            return polygon.ShoelaceArea() + edge / 2 + 1;
         }
 
         private object RunPart2(string[] inputData)
@@ -93,22 +94,7 @@ namespace Day18
                 edge += length;
             }
 
-            return Area(polygon) + edge / 2 + 1;
-        }
-
-        // Shoelace formula, found it on the internet:
-        // https://rosettacode.org/wiki/Shoelace_formula_for_polygonal_area#C#
-        private double Area(List<(long Row, long Col)> polygon)
-        {
-            var n = polygon.Count;
-            var result = 0.0;
-            for (var i = 0; i < n - 1; i++)
-            {
-                result += polygon[i].Row * polygon[i + 1].Col - polygon[i + 1].Row * polygon[i].Col;
-            }
-
-            result = Math.Abs(result + polygon[n - 1].Row * polygon[0].Col - polygon[0].Row * polygon[n - 1].Col) / 2.0;
-            return result;
+            return polygon.ShoelaceArea() + edge / 2 + 1;
         }
     }
 }
