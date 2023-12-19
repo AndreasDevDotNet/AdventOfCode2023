@@ -20,6 +20,11 @@ namespace Day2
             return "Problem: Cube Conundrum";
         }
 
+        public override void ShowVisualization()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object Run(int part)
         {
             var inputData = GetInputLines();

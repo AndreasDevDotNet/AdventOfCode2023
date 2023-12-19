@@ -19,6 +19,11 @@ namespace Day16
             return "Problem: The Floor Will Be Lava";
         }
 
+        public override void ShowVisualization()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object Run(int part)
         {
             var inputData = GetInputLines();

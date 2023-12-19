@@ -19,6 +19,11 @@ namespace Day5
             return "Problem: If You Give A Seed A Fertilizer";
         }
 
+        public override void ShowVisualization()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object Run(int part)
         {
             var inputData = GetInputLines();

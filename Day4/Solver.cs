@@ -19,6 +19,11 @@ namespace Day4
             return "Problem: Scratchcards";
         }
 
+        public override void ShowVisualization()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object Run(int part)
         {
             var inputData = GetInputLines();

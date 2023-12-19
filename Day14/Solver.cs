@@ -25,6 +25,11 @@ namespace Day14
             return "Problem: Parabolic Reflector Dish";
         }
 
+        public override void ShowVisualization()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object Run(int part)
         {
             var inputData = GetInputLines();

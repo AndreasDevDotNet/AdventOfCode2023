@@ -1,4 +1,5 @@
 ﻿using AoCToolbox;
+using System.Drawing;
 using System.Numerics;
 using Map = System.Collections.Generic.Dictionary<System.Numerics.Complex, char>;
 
@@ -11,6 +12,11 @@ namespace Day10
         private Complex Left = -Complex.One;
         private Complex Right = Complex.One;
         private Complex[] Dirs;
+
+        public Solver()
+        {
+            HasVisualization = true;
+        }
 
         public override string GetDayString()
         {
@@ -25,6 +31,16 @@ namespace Day10
         public override string GetProblemName()
         {
             return "Problem: PipeMaze";
+        }
+
+        public override void ShowVisualization()
+        {
+            var inputData = GetInputText();
+
+            var map = ParseMap(inputData);
+            var loop = LoopPositions(map);
+
+
         }
 
         public override object Run(int part)

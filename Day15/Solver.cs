@@ -19,6 +19,11 @@ namespace Day15
             return "Problem: Lens Library";
         }
 
+        public override void ShowVisualization()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object Run(int part)
         {
             var inputData = GetInputText();

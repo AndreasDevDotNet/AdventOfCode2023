@@ -21,6 +21,11 @@ namespace Day7
             return "Problem: Camel Cards";
         }
 
+        public override void ShowVisualization()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object Run(int part)
         {
             var inputData = GetInputLines();

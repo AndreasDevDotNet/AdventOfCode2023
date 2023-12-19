@@ -20,6 +20,11 @@ namespace Day6
             return "Problem: Wait For It";
         }
 
+        public override void ShowVisualization()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object Run(int part)
         {
             var inputData = GetInputLines();

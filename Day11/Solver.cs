@@ -21,6 +21,11 @@ namespace Day11
             return "Problem: Cosmic Expansion";
         }
 
+        public override void ShowVisualization()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object Run(int part)
         {
             var inputData = GetInputLines();
@@ -87,5 +92,7 @@ namespace Day11
 
             return sum;
         }
+
+        
     }
 }

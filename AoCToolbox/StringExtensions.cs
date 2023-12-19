@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -49,5 +50,18 @@ namespace AoCToolbox
         {
             return WhitespaceRegex.Replace(input: str, replacement: string.Empty);
         }
+
+        public static T ParseNumber<T>(this string s) where T : INumber<T>
+        {
+            return ParseNumbers<T>(s)[0];
+        }
+
+        public static T[] ParseNumbers<T>(this string s) where T : INumber<T>
+        {
+            return NumberRegex.Matches(s)
+                .Select(m => T.Parse(s: m.Value.AsSpan(), provider: null))
+                .ToArray();
+        }
+
     }
 }

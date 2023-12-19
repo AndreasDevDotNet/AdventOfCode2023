@@ -18,6 +18,11 @@ namespace Day1
             return "---------------------------";
         }
 
+        public override void ShowVisualization()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object Run(int part)
         {
             var inputData = GetInputLines().ToList();

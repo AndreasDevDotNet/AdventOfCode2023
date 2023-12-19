@@ -19,6 +19,11 @@ namespace Day9
             return "Problem: Mirage Maintenance";
         }
 
+        public override void ShowVisualization()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object Run(int part)
         {
             var inputData = GetInputLines();

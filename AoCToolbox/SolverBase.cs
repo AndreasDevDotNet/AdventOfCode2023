@@ -15,6 +15,7 @@ namespace AoCToolbox
         public virtual int Parts => 2;
 
         public bool LogsEnabled { get; set; }
+        public bool HasVisualization { get; set; }
         public string InputPath { get; set; } = string.Empty;
 
         /// <summary>
@@ -26,6 +27,7 @@ namespace AoCToolbox
         public abstract string GetDayString();
         public abstract string GetProblemName();
         public abstract string GetDivider();
+        public abstract void ShowVisualization();
 
         protected string[] GetInputLines()
         {

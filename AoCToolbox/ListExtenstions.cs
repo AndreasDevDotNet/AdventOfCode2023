@@ -123,6 +123,7 @@ public static class ListExtenstions
             }
         }
 
+        listOfLists.Add(tempList);
 
         return listOfLists;
     }
