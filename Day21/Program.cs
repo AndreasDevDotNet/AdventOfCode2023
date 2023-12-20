@@ -1,6 +1,7 @@
-﻿using Day20;
+﻿using Day21;
 
-var solver = new Solver("20input.txt");
+var solver = new Solver();
+solver.InputPath = "testinput.txt";
 
 Console.WriteLine("**** AdventOfCode 2023 ****");
 Console.WriteLine("---------------------------");
