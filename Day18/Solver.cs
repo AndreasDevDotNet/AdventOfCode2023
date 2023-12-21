@@ -23,7 +23,44 @@ namespace Day18
 
         public override void ShowVisualization()
         {
-            throw new NotImplementedException();
+            var inputData = GetInputLines();
+            var lavaTrench = new LavaTrench();
+            var polygon = new List<Point>();
+
+            calculatePolygon(inputData, polygon);
+
+            var lavaDugOutList = new List<LavaTrenchDugOut>();
+            for (int i = 0; i < polygon.Count; i++) 
+            {
+                if (i > 0)
+                {
+                    var previousPos = polygon[i - 1];
+                    
+                    var pointInBetween = previousPos.GetPointsBetween(polygon[i]);
+
+                    if(pointInBetween.Last().X == previousPos.X && pointInBetween.Last().Y == previousPos.Y)
+                    {
+                        pointInBetween.Reverse();
+                    }
+
+                    pointInBetween.RemoveAt(0);
+                    pointInBetween.RemoveAt(pointInBetween.Count - 1);
+
+                    foreach (var point in pointInBetween)
+                    {
+                        lavaDugOutList.Add(new LavaTrenchDugOut { Position = point, CharRepresentation = '#' });
+                    }
+                }
+
+                lavaDugOutList.Add(new LavaTrenchDugOut { Position = polygon[i], CharRepresentation = '#' });
+
+            }
+
+            lavaTrench.WorldObjects = lavaDugOutList;
+
+            var printer = new WorldPrinter(clearScreenFirst: false);
+            printer.Print(lavaTrench);
+            
         }
 
         public override object Run(int part)
@@ -47,8 +84,15 @@ namespace Day18
         {
             var polygon = new List<Point>();
 
+            double edge = calculatePolygon(inputData, polygon);
+
+            return polygon.ShoelaceArea() + edge / 2 + 1;
+        }
+
+        private static double calculatePolygon(string[] inputData, List<Point> polygon)
+        {
             var currentPosition = new Point(0, 0);
-            
+
             var edge = 0.0;
 
             foreach (var line in inputData)
@@ -69,7 +113,7 @@ namespace Day18
                 edge += length;
             }
 
-            return polygon.ShoelaceArea() + edge / 2 + 1;
+            return edge;
         }
 
         private object RunPart2(string[] inputData)
@@ -100,6 +144,21 @@ namespace Day18
             }
 
             return polygon.ShoelaceArea() + edge / 2 + 1;
+        }
+
+        class LavaTrench : IWorld
+        {
+            public IEnumerable<IWorldObject> WorldObjects { get; set; }
+        }
+
+        class LavaTrenchDugOut : IWorldObject
+        {
+
+            public Point Position { get; set; }
+
+            public char CharRepresentation { get; set; }
+
+            public int Z => 0;
         }
     }
 }

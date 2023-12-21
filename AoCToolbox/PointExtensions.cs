@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 
 namespace AoCToolbox;
 
@@ -106,5 +108,88 @@ public static class PointExtensions
 
         result = Math.Abs(result + polygon[n - 1].Row * polygon[0].Col - polygon[0].Row * polygon[n - 1].Col) / 2.0;
         return result;
+    }
+
+    public static List<Point> GetPointsBetween(this Point p1, Point p2)
+    {
+        List<Point> points = new List<Point>();
+
+        // no slope (vertical line)
+        if (p1.X == p2.X)
+        {
+            if (p1.Y > p2.Y)
+            {
+                for (int y = p1.Y; y <= p2.Y; y++)
+                {
+                    Point p = new Point(p1.X, y);
+                    points.Add(p);
+                } 
+            }
+            else
+            {
+                for (int y = p2.Y; y >= p1.Y; y--)
+                {
+                    Point p = new Point(p1.X, y);
+                    points.Add(p);
+                }
+            }
+        }
+        else
+        {
+            // swap p1 and p2 if p2.X < p1.X
+            if (p2.X < p1.X)
+            {
+                Point temp = p1;
+                p1 = p2;
+                p2 = temp;
+            }
+
+            double deltaX = p2.X - p1.X;
+            double deltaY = p2.Y - p1.Y;
+            double error = -1.0f;
+            double deltaErr = Math.Abs(deltaY / deltaX);
+
+            int y = p1.Y;
+            for (int x = p1.X; x <= p2.X; x++)
+            {
+                Point p = new Point(x, y);
+                points.Add(p);
+
+                error += deltaErr;
+
+                while (error >= 0.0f)
+                {
+                    y++;
+                    points.Add(new Point(x, y));
+                    error -= 1.0f;
+                }
+            }
+
+            if (points.Last() != p2)
+            {
+                int index = points.IndexOf(p2);
+                points.RemoveRange(index + 1, points.Count - index - 1);
+            }
+            
+        }
+
+        return points.OrderByDescending(p => p.X).ThenByDescending(p => p.Y).ToList();
+    }
+}
+
+public class PointsComparer : IEqualityComparer<Point>
+{
+    public bool Equals(Point x, Point y)
+    {
+        return y.X > x.X && y.Y > x.Y;
+    }
+
+    public int GetHashCode([DisallowNull] Point obj)
+    {
+        int hashCode = 256;
+
+        hashCode += hashCode ^ obj.GetHashCode();
+
+        return hashCode;
     }
 }
