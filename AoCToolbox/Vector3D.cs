@@ -65,6 +65,7 @@ namespace AoCToolbox
 
         public static implicit operator Vector3D(Vector2D v) => new(v.X, v.Y, z: 0);
         public static implicit operator Vector3D(Vector4D v) => new(v.X, v.Y, v.Z);
+        public static implicit operator Vector3D((int x, int y, int z) a) => new(a.x, a.y, a.z);
 
         public static Vector3D operator +(Vector3D lhs, Vector3D rhs)
         {

@@ -72,6 +72,9 @@ namespace AoCToolbox
         {
             return Regex.Matches(str, "[a-zA-z]+").Select(a => a.Value);
         }
-
+        public static IEnumerable<int> ExtractInts(this string str)
+        {
+            return Regex.Matches(str, "-?\\d+").Select(m => int.Parse(m.Value));
+        }
     }
 }
