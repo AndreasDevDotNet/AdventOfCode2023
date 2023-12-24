@@ -76,5 +76,9 @@ namespace AoCToolbox
         {
             return Regex.Matches(str, "-?\\d+").Select(m => int.Parse(m.Value));
         }
+        public static IEnumerable<long> ExtractLongs(this string str)
+        {
+            return Regex.Matches(str, "-?\\d+").Select(m => long.Parse(m.Value));
+        }
     }
 }

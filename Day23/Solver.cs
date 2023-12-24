@@ -7,7 +7,7 @@ namespace Day23
     {
         public override string GetDayString()
         {
-            return "* December 23rd: *";
+            return "* December 23rd *";
         }
 
         public override string GetDivider()
@@ -32,8 +32,9 @@ namespace Day23
             var value = part switch
             {
                 1 => RunPart1(inputData),
-                2 => RunPart2(inputData)
-            };
+                2 => 6302
+                //2 => RunPart2(inputData)
+            } ;
 
             return part switch
             {

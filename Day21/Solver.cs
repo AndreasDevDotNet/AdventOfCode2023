@@ -6,7 +6,7 @@ namespace Day21
     {
         public override string GetDayString()
         {
-            return "* December 21th: *";
+            return "* December 21th *";
         }
 
         public override string GetDivider()
