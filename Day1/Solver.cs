@@ -1,5 +1,6 @@
 ﻿using AoCToolbox;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Day1
 {
@@ -41,23 +42,20 @@ namespace Day1
             };
         }
 
-        private int RunPart1(List<string> inputData)
+        private object RunPart1(List<string> inputData)
         {
-            var calibrationValuesNumbers = new List<int>();
+            int calibrationValue = 0;
 
-            foreach (var value in inputData)
+            foreach (string line in inputData)
             {
-                var digitsFromString = string.Concat(value.Where(char.IsDigit));
-                var first = firstDigit(int.Parse(digitsFromString));
-                var last = lastDigit(int.Parse(digitsFromString));
-                var calibrationValue = first + last;
-                calibrationValuesNumbers.Add(int.Parse(calibrationValue));
+                var digits = line.Where(char.IsDigit).ToList();
+                calibrationValue += int.Parse(digits.First().ToString() + digits.Last().ToString());
             }
 
-            return calibrationValuesNumbers.Sum();
+            return calibrationValue;
         }
 
-        private int RunPart2(List<string> inputData)
+        private object RunPart2(List<string> inputData)
         {
             var stringDigits = new Dictionary<string, string>() { { "one", "1" }, { "two", "2" }, { "three", "3" }, { "four", "4" }, { "five", "5" }, { "six", "6" }, { "seven", "7" }, { "eight", "8" }, { "nine", "9" }, };
 
@@ -101,9 +99,6 @@ namespace Day1
                 return stringDigitIndexList.First(x => x.Index == indexOfFirstStringDigit).Digit;
             }
         }
-
-
-
         private string lastRealDigit(string input, Dictionary<string, string> stringDigits)
         {
             var indexOfLastDigit = input.LastIndexOfAny("0123456789".ToCharArray());
@@ -137,14 +132,10 @@ namespace Day1
 
             return n.ToString();
         }
-
         private string lastDigit(int n)
         {
             return (n % 10).ToString();
         }
-
-
-
         private class StringDigitIndex
         {
             public int Index { get; set; }

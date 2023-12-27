@@ -12,10 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AoCToolbox\AoCToolbox.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="24input.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
