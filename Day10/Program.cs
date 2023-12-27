@@ -10,8 +10,3 @@ Console.WriteLine(solver.GetProblemName());
 Console.WriteLine(solver.Run(1));
 Console.WriteLine(solver.Run(2));
 Console.WriteLine(solver.GetDivider());
-if(solver.HasVisualization)
-{
-    solver.ShowVisualization();
-    Console.WriteLine(solver.GetDivider());
-}

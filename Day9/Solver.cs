@@ -6,7 +6,7 @@ namespace Day9
     {
         public override string GetDayString()
         {
-            return "* December 9th: *";
+            return "* December 9th *";
         }
 
         public override string GetDivider()
@@ -43,47 +43,48 @@ namespace Day9
 
         private object RunPart1(string[] inputData)
         {
-            var histories = inputData.Select(formHistory);
+            int total = 0;
 
-            return histories.Sum(extrapolateForwards);
+            foreach (var line in inputData)
+            {
+                var nums = line.ExtractInts().ToArray();
+                total += Extrapolate(nums);
+            }
+
+            return total;
         }
 
         private object RunPart2(string[] inputData)
         {
-            var histories = inputData.Select(formHistory);
-            return histories.Sum(extrapolateBackwards);
-        }
+            int total = 0;
 
-        private List<int[]> formHistory(string report)
-        {
-            var initial = report.ParseInts();
-            var sequences = new List<int[]> { initial.ToArray() };
-
-            while (sequences[^1].Any(v => v != 0))
+            foreach (var line in inputData)
             {
-                sequences.Add(item: sequences[^1]
-                    .Skip(1)
-                    .Select((val, i) => val - sequences[^1][i])
-                    .ToArray());
+                var nums = line.ExtractInts().ToArray();
+                total += Extrapolate(nums, true);
             }
 
-            return sequences;
+            return total;
         }
 
-        private int extrapolateForwards(IList<int[]> sequences)
+        int Extrapolate(int[] array, bool runBackwards = false)
         {
-            return sequences
-                .Reverse()
-                .Skip(1)
-                .Aggregate(seed: 0, func: (n, seq) => n + seq[^1]);
-        }
+            if (array.All(x => x == 0))
+            {
+                return 0;
+            }
 
-        private int extrapolateBackwards(IList<int[]> sequences)
-        {
-            return sequences
-                .Reverse()
-                .Skip(1)
-                .Aggregate(seed: 0, func: (n, seq) => seq[0] - n);
+            var deltas = array.Zip(array.Skip(1), (x, y) => y - x).ToArray();
+            var diff = Extrapolate(deltas, runBackwards);
+            if (!runBackwards)
+            {
+                return array[^1] + diff; 
+            }
+            else
+            {
+                return array[0] - diff;
+            }
+                
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Day21
             return part switch
             {
                 1 => $" Part #1\n  Number of garden plots the Elf could reach in exactly 64 steps: {value}",
-                2 => $" Part #2\n  Number of garden plots the Elf could reach in exactly 605492675373144 steps (Infinit map): {value}",
+                2 => $" Part #2\n  Number of garden plots the Elf could reach in exactly 605492675373144 steps (Infinite map): {value}",
             };
         }
 

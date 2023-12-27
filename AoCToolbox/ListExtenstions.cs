@@ -202,4 +202,11 @@ public static class ListExtenstions
 
         return false;
     }
+
+    public static T Pop<T>(this IList<T> source)
+    {
+        var itemToReturn = source.Last();
+        source.Remove(itemToReturn);
+        return itemToReturn;
+    }
 }

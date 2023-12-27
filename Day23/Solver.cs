@@ -32,8 +32,7 @@ namespace Day23
             var value = part switch
             {
                 1 => RunPart1(inputData),
-                2 => 6302
-                //2 => RunPart2(inputData)
+                2 => RunPart2(inputData)
             } ;
 
             return part switch
@@ -45,127 +44,123 @@ namespace Day23
 
         private object RunPart1(string[] map)
         {
-            var start = new MapPosition(0, 1);
-            var end = new MapPosition(map.Length - 1, map[0].Length - 2);
-
-            var graph = BuildGraph(map);
-
-            return DFS(graph, [], start, end);
+            return findLongestPath(map);
         }
 
         private object RunPart2(string[] map)
         {
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-
-            var start = new MapPosition(0, 1);
-            var end = new MapPosition(map.Length - 1, map[0].Length - 2);
-
-            var graph = BuildGraph(map,false);
-
-            var longestHike = DFS(graph, [], start, end);
-            stopWatch.Stop();
-
-            return longestHike;
+            return findLongestPath(map, false);
         }
 
-        // Recursive Depth First Search (DFS) using brute force
-        int DFS(Dictionary<MapPosition, HashSet<MapPosition>> graph, HashSet<MapPosition> visited, MapPosition current, MapPosition end)
+        private long findLongestPath(string[] grid, bool useSlopeRules = true)
         {
-            var result = 0;
+            var start = (0, Array.IndexOf(grid[0].ToCharArray(), '.'));
+            var end = (grid.Length - 1, Array.IndexOf(grid[^1].ToCharArray(), '.'));
 
-            if (current == end)
-            {
-                return visited.Count;
-            }
+            var points = new List<(int, int)> { start, end };
 
-            foreach (var neighbor in graph[current])
+            for (int row = 0; row < grid.Length; row++)
             {
-                if (!visited.Add(neighbor))
+                for (int col = 0; col < grid[row].Length; col++)
                 {
-                    continue;
-                }
+                    if (grid[row][col] == '#')
+                        continue;
 
-                var length = DFS(graph, visited, neighbor, end);
-                result = Math.Max(result, length);
-                visited.Remove(neighbor);
-            }
-
-            return result;
-        }
-
-        static Dictionary<MapPosition, HashSet<MapPosition>> BuildGraph(string[] input, bool useSlopeRules = true)
-        {
-            var graph = new Dictionary<MapPosition, HashSet<MapPosition>>();
-            for (var row = 0; row < input.Length; row++)
-            {
-                var line = input[row];
-
-                for (var col = 0; col < line.Length; col++)
-                {
-                    if (line[col] == '#')
+                    int neighbors = 0;
+                    foreach (var (neighborRow, neighborCol) in new[] { (row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1) })
                     {
+                        if (0 <= neighborRow && neighborRow < grid.Length && 0 <= neighborCol && neighborCol < grid[0].Length && grid[neighborRow][neighborCol] != '#')
+                            neighbors++;
+                    }
+
+                    if (neighbors >= 3)
+                        points.Add((row, col));
+                }
+            }
+
+            var graph = points.ToDictionary(pt => pt, _ => new Dictionary<(int, int), int>());
+
+            var dirs = new Dictionary<char, List<(int, int)>>
+            {
+                { '^', new List<(int, int)> { (-1, 0) } },
+                { 'v', new List<(int, int)> { (1, 0) } },
+                { '<', new List<(int, int)> { (0, -1) } },
+                { '>', new List<(int, int)> { (0, 1) } },
+                { '.', new List<(int, int)> { (-1, 0), (1, 0), (0, -1), (0, 1) } }
+            };
+
+            foreach (var (startRow, startCol) in points)
+            {
+                var stack = new Stack<(int length, int row, int col)>();
+                var seen = new HashSet<(int, int)>();
+
+                stack.Push((0, startRow, startCol));
+                seen.Add((startRow, startCol));
+
+                while (stack.Count > 0)
+                {
+                    var (length, row, col) = stack.Pop();
+
+                    if (length != 0 && points.Contains((row, col)))
+                    {
+                        graph[(startRow, startCol)][(row, col)] = length;
                         continue;
                     }
 
-                    var pos = new MapPosition(row, col);
-                    graph[pos] = [];
-
                     if (useSlopeRules)
                     {
-                        switch (line[col])
+                        foreach (var (dr, dc) in dirs[grid[row][col]])
                         {
-                            case '>':
-                                graph[pos].Add(pos.Move(Direction.Right));
-                                continue;
-                            case 'v':
-                                graph[pos].Add(pos.Move(Direction.Down));
-                                continue;
-                            case '<':
-                                graph[pos].Add(pos.Move(Direction.Left));
-                                continue;
+                            var nr = row + dr;
+                            var nc = col + dc;
+
+                            if (0 <= nr && nr < grid.Length && 0 <= nc && nc < grid[0].Length && grid[nr][nc] != '#' && !seen.Contains((nr, nc)))
+                            {
+                                stack.Push((length + 1, nr, nc));
+                                seen.Add((nr, nc));
+                            }
+                        } 
+                    }
+                    else
+                    {
+                        foreach (var (dr, dc) in new[] { (-1, 0), (1, 0), (0, -1), (0, 1) })
+                        {
+                            var nr = row + dr;
+                            var nc = col + dc;
+
+                            if (0 <= nr && nr < grid.Length && 0 <= nc && nc < grid[0].Length && grid[nr][nc] != '#' && !seen.Contains((nr, nc)))
+                            {
+                                stack.Push((length + 1, nr, nc));
+                                seen.Add((nr, nc));
+                            }
                         }
-                    }
-
-                    if (row > 0 && input[row - 1][col] != '#')
-                    {
-                        graph[pos].Add(pos.Move(Direction.Up));
-                    }
-
-                    if (row < input.Length - 1 && input[row + 1][col] != '#')
-                    {
-                        graph[pos].Add(pos.Move(Direction.Down));
-                    }
-
-                    if (col > 0 && input[row][col - 1] != '#')
-                    {
-                        graph[pos].Add(pos.Move(Direction.Left));
-                    }
-
-                    if (col < line.Length - 1 && input[row][col + 1] != '#')
-                    {
-                        graph[pos].Add(pos.Move(Direction.Right));
                     }
                 }
             }
 
-            return graph;
-        }
+            var seenSet = new HashSet<(int, int)>();
 
-        record Direction(int Row, int Col)
-        {
-            public static Direction Up = new(-1, 0);
-            public static Direction Down = new(1, 0);
-            public static Direction Left = new(0, -1);
-            public static Direction Right = new(0, 1);
-        }
-
-        record MapPosition(int Row, int Col)
-        {
-            public MapPosition Move(Direction dir)
+            int DFS((int, int) pt)
             {
-                return new MapPosition(Row + dir.Row, Col + dir.Col);
+                if (pt == end)
+                    return 0;
+
+                int m = int.MinValue;
+
+                seenSet.Add(pt);
+
+                foreach (var nx in graph[pt])
+                {
+                    if (!seenSet.Contains(nx.Key))
+                        m = Math.Max(m, DFS(nx.Key) + graph[pt][nx.Key]);
+                }
+
+                seenSet.Remove(pt);
+
+                return m;
             }
+
+            return DFS(start);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AoCToolbox;
+using System.Collections.Generic;
 
 namespace Day1
 {
@@ -6,7 +7,7 @@ namespace Day1
     {
         public override string GetDayString()
         {
-            return "* December 1st: *";
+            return "* December 1st *";
         }
         public override string GetProblemName()
         {

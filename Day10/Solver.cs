@@ -1,18 +1,10 @@
 ﻿using AoCToolbox;
-using System.Drawing;
-using System.Numerics;
-using Map = System.Collections.Generic.Dictionary<System.Numerics.Complex, char>;
+using System.Diagnostics;
 
 namespace Day10
 {
     public class Solver : SolverBase
     {
-        private Complex Up = -Complex.ImaginaryOne;
-        private Complex Down = Complex.ImaginaryOne;
-        private Complex Left = -Complex.One;
-        private Complex Right = Complex.One;
-        private Complex[] Dirs;
-
         public Solver()
         {
             HasVisualization = true;
@@ -20,7 +12,7 @@ namespace Day10
 
         public override string GetDayString()
         {
-            return "* December 10th: *";
+            return "* December 10th *";
         }
 
         public override string GetDivider()
@@ -35,18 +27,12 @@ namespace Day10
 
         public override void ShowVisualization()
         {
-            var inputData = GetInputText();
-
-            var map = ParseMap(inputData);
-            var loop = LoopPositions(map);
-
 
         }
 
         public override object Run(int part)
         {
-            var inputData = GetInputText();
-            Dirs = [Up, Right, Down, Left];
+            var inputData = GetInputLines();
 
             var value = part switch
             {
@@ -61,162 +47,200 @@ namespace Day10
             };
         }
 
-        private object RunPart1(string inputData)
+        private object RunPart1(string[] grid)
         {
-            var map = ParseMap(inputData);
-            var loop = LoopPositions(map);
+            int startRow = -1, startCol = -1;
+
+            HashSet<(int, int)> loop = new HashSet<(int, int)>();
+            Queue<(int, int)> q = new Queue<(int, int)>();
+
+            // Find start row and column
+            for (int r = 0; r < grid.Length; r++)
+            {
+                for (int c = 0; c < grid[r].Length; c++)
+                {
+                    char ch = grid[r][c];
+                    if (ch == 'S')
+                    {
+                        startRow = r;
+                        startCol = c;
+                        break;
+                    }
+                }
+                if (startRow != -1) break;
+            }
+
+            loop.Add((startRow, startCol));
+            q.Enqueue((startRow, startCol));
+            // Run trough the loop
+            while (q.Count > 0)
+            {
+                (int r, int c) = q.Dequeue();
+                char ch = grid[r][c];
+
+                if (r > 0 && "S|JL".Contains(ch) && "|7F".Contains(grid[r - 1][c]) && !loop.Contains((r - 1, c)))
+                {
+                    loop.Add((r - 1, c));
+                    q.Enqueue((r - 1, c));
+                }
+
+                if (r < grid.Length - 1 && "S|7F".Contains(ch) && "|JL".Contains(grid[r + 1][c]) && !loop.Contains((r + 1, c)))
+                {
+                    loop.Add((r + 1, c));
+                    q.Enqueue((r + 1, c));
+                }
+
+                if (c > 0 && "S-J7".Contains(ch) && "-LF".Contains(grid[r][c - 1]) && !loop.Contains((r, c - 1)))
+                {
+                    loop.Add((r, c - 1));
+                    q.Enqueue((r, c - 1));
+                }
+
+                if (c < grid[r].Length - 1 && "S-LF".Contains(ch) && "-J7".Contains(grid[r][c + 1]) && !loop.Contains((r, c + 1)))
+                {
+                    loop.Add((r, c + 1));
+                    q.Enqueue((r, c + 1));
+                }
+            }
+
             return loop.Count / 2;
         }
 
-        private object RunPart2(string inputData)
+        private object RunPart2(string[] grid)
         {
-            var map = ParseMap(inputData);
-            var loop = LoopPositions(map);
-            map = Filter(map, loop);
-            map = Replace(map, '.', 'I');
-            map = ScaleUp(map);
-            map = Fill(map, Complex.Zero, ".I", 'O');
-            return map.Values.Count(v => v == 'I');
-        }
+            int startRow = -1, startCol = -1;
 
-        // Finds 'S' in the map and returns the coordinates that make up the loop
-        private HashSet<Complex> LoopPositions(Map map)
-        {
-            var curr = map.Keys.Single(k => map[k] == 'S');
-            var positions = new HashSet<Complex>() { };
-            var dir = Dirs.First(dir => DirsIn(map[curr + dir]).Contains(dir));
+            HashSet<(int, int)> loop = new HashSet<(int, int)>();
+            Queue<(int, int)> q = new Queue<(int, int)>();
+            HashSet<char> maybeS = new HashSet<char> { '|', '-', 'J', 'L', '7', 'F' };
 
-            for (; !positions.Contains(curr);)
+            // Find start row and column
+            for (int r = 0; r < grid.Length; r++)
             {
-                positions.Add(curr);
-                curr += dir;
-                if (map[curr] == 'S')
+                for (int c = 0; c < grid[r].Length; c++)
                 {
-                    break;
-                }
-                var outs = DirsOut(map[curr]);
-                dir = DirsOut(map[curr]).Single(dirOut => dirOut != -dir);
-            }
-            return positions;
-        }
-
-        // Fills the map using flood fill replacing chars of charsToFill with the
-        // given fillChar. Every other character of the map is considered as a wall.
-        private Map Fill(Map map, Complex start, string charsToFill, char fillChar)
-        {
-            var q = new Queue<Complex>();
-            q.Enqueue(start);
-            while (q.Any())
-            {
-                var p = q.Dequeue();
-                if (!charsToFill.Contains(map[p]))
-                {
-                    continue;
-                }
-                map[p] = fillChar;
-                foreach (var d in Dirs)
-                {
-                    if (map.ContainsKey(p + d))
+                    char ch = grid[r][c];
+                    if (ch == 'S')
                     {
-                        q.Enqueue(p + d);
+                        startRow = r;
+                        startCol = c;
+                        break;
+                    }
+                }
+                if (startRow != -1) break;
+            }
+
+            loop.Add((startRow, startCol));
+            q.Enqueue((startRow, startCol));
+
+            // Run trough the loop, also try to find out what kind of pipe 'S' is
+            while (q.Count > 0)
+            {
+                (int r, int c) = q.Dequeue();
+                char ch = grid[r][c];
+
+                if (r > 0 && "S|JL".Contains(ch) && "|7F".Contains(grid[r - 1][c]) && !loop.Contains((r - 1, c)))
+                {
+                    loop.Add((r - 1, c));
+                    q.Enqueue((r - 1, c));
+                    if (ch == 'S')
+                    {
+                        maybeS.IntersectWith(new HashSet<char> { '|', 'J', 'L' });
+                    }
+                }
+
+                if (r < grid.Length - 1 && "S|7F".Contains(ch) && "|JL".Contains(grid[r + 1][c]) && !loop.Contains((r + 1, c)))
+                {
+                    loop.Add((r + 1, c));
+                    q.Enqueue((r + 1, c));
+                    if (ch == 'S')
+                    {
+                        maybeS.IntersectWith(new HashSet<char> { '|', '7', 'F' });
+                    }
+                }
+
+                if (c > 0 && "S-J7".Contains(ch) && "-LF".Contains(grid[r][c - 1]) && !loop.Contains((r, c - 1)))
+                {
+                    loop.Add((r, c - 1));
+                    q.Enqueue((r, c - 1));
+                    if (ch == 'S')
+                    {
+                        maybeS.IntersectWith(new HashSet<char> { '-', 'J', '7' });
+                    }
+                }
+
+                if (c < grid[r].Length - 1 && "S-LF".Contains(ch) && "-J7".Contains(grid[r][c + 1]) && !loop.Contains((r, c + 1)))
+                {
+                    loop.Add((r, c + 1));
+                    q.Enqueue((r, c + 1));
+                    if (ch == 'S')
+                    {
+                        maybeS.IntersectWith(new HashSet<char> { '-', 'L', 'F' });
                     }
                 }
             }
-            return map;
-        }
 
-        // In which directions can a cell left
-        private Complex[] DirsOut(char ch) => ch switch
-        {
-            '7' => [Left, Down],
-            'F' => [Right, Down],
-            'L' => [Up, Right],
-            'J' => [Up, Left],
-            '|' => [Up, Down],
-            '-' => [Left, Right],
-            'S' => [Up, Down, Left, Right],
-            _ => []
-        };
+            char S = maybeS.Single();
 
-        // In which directions can a cell entered
-        private Complex[] DirsIn(char ch) =>
-            DirsOut(ch).Select(ch => -ch).ToArray();
+            // Fix grid and replace 'S' with what is underneath
+            grid = grid.Select(row => row.Replace('S', S)).ToArray();
+            // Remove all the garbage pipes
+            grid = grid.Select((row, r) => new string(row.Select((ch, c) => loop.Contains((r, c)) ? ch : '.').ToArray())).ToArray();
 
-        private Map ParseMap(string input)
-        {
-            var rows = input.Split("\n");
-            var crow = rows.Length;
-            var ccol = rows[0].Length;
-            var res = new Map();
-            for (var irow = 0; irow < crow; irow++)
+            // Find all positions that are outside the loop
+            HashSet<(int, int)> outside = new HashSet<(int, int)>();
+            for (int r = 0; r < grid.Length; r++)
             {
-                for (var icol = 0; icol < ccol; icol++)
+                bool within = false;
+                bool? up = null;
+
+                for (int c = 0; c < grid[r].Length; c++)
                 {
-                    res[new Complex(icol, irow)] = rows[irow][icol];
-                }
-            }
-            return res;
-        }
+                    char ch = grid[r][c];
 
-        private Map Filter(Map map, HashSet<Complex> keep) =>
-            map.Keys.ToDictionary(k => k, k => keep.Contains(k) ? map[k] : '.');
-
-        private Map Replace(Map map, char chSrc, char chDst) =>
-            map.Keys.ToDictionary(k => k, k => map[k] == chSrc ? chDst : map[k]);
-
-
-        // Adds a 1 width border of '.' around the map
-        private Map Pad(Map map)
-        {
-            var ccol = map.Keys.Select(k => k.Real).Max();
-            var crow = map.Keys.Select(k => k.Imaginary).Max();
-
-            for (var irow = -1; irow <= crow; irow++)
-            {
-                map[new Complex(0, irow)] = '.';
-                map[new Complex(ccol + 1, irow)] = '.';
-            }
-            for (var icol = -1; icol <= ccol; icol++)
-            {
-                map[new Complex(icol, 0)] = '.';
-                map[new Complex(icol, crow + 1)] = '.';
-            }
-
-            return map.Keys.ToDictionary(k => k + new Complex(1, 1), k => map[k]);
-        }
-
-        // Creates a 3x scaled up map applying the patterns of MagnifyCh
-        private Map ScaleUp(Map map)
-        {
-            var ccol = map.Keys.Select(k => k.Real).Max();
-            var crow = map.Keys.Select(k => k.Imaginary).Max();
-            var newMap = new Map();
-            for (var irow = 0; irow < crow; irow++)
-            {
-                for (var icol = 0; icol < ccol; icol++)
-                {
-                    var ch = map[new Complex(icol, irow)];
-                    var m = MagnifyCh(ch);
-                    for (var v = 0; v < 9; v++)
+                    if (ch == '|')
                     {
-                        newMap[new Complex(3 * icol + (v % 3), 3 * irow + v / 3)] = m[v];
+                        Debug.Assert(up is null);
+                        within = !within;
+                    }
+                    else if (ch == '-')
+                    {
+                        Debug.Assert(up is not null);
+                    }
+                    else if (ch == 'L' || ch == 'F')
+                    {
+                        Debug.Assert(up is null);
+                        up = ch == 'L';
+                    }
+                    else if (ch == 'J' || ch == '7')
+                    {
+                        Debug.Assert(up is not null);
+
+                        if (ch != (up.Value ? 'J' : '7'))
+                        {
+                            within = !within;
+                        }
+                        up = null;
+                    }
+                    else if (ch == '.')
+                    {
+                        // Do nothing
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Unexpected character (horizontal): {ch}");
+                    }
+
+                    if (!within)
+                    {
+                        outside.Add((r, c));
                     }
                 }
             }
-            return newMap;
+
+            // number of tiles inside the loop: gridLength * gridWidth - (outsideTiles - loopTiles)
+            return grid.Length * grid[0].Length - (outside.Union(loop)).Count();
         }
 
-        // Defines a 3x3 magnifiying pattern for a char
-        private string MagnifyCh(char ch) => ch switch
-        {
-            '7' => "...-7..|.",
-            'F' => "....F-.|.",
-            'L' => ".|..L-...",
-            'J' => ".|.-J....",
-            '|' => ".|..|..|.",
-            '-' => "...---...",
-            'S' => ".|.-S-.|.",
-            _ => "...." + ch + "....", // just leave it in the middle
-        };
     }
 }

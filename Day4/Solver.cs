@@ -6,7 +6,7 @@ namespace Day4
     {
         public override string GetDayString()
         {
-            return "* December 4th: *";
+            return "* December 4th *";
         }
 
         public override string GetDivider()
@@ -43,155 +43,57 @@ namespace Day4
 
         private object RunPart1(string[] inputData)
         {
-            var scratchCards = parseScratchCards(inputData.ToList());
+            int totalPoints = 0;
 
-            int numberOfPoints = 0;
-
-            foreach (var scratchCard in scratchCards)
+            foreach (var line in inputData)
             {
-                int pointsForCard = 1;
+                var numbers = line.Split(":")[1].Trim();
+                var numberArrays = numbers.Split(" | ").Select(x => x.ExtractInts().ToList()).ToList();
+                var winningNumbers = numberArrays[0];
+                var yourNumbers = numberArrays[1];
 
-                var numberOfWinningMatches = scratchCard.NumberOfWinningMatches;
-
-                for (int i = 1; i < numberOfWinningMatches; i++)
+                var cardPoints = yourNumbers.Count(q => winningNumbers.Contains(q));
+                if (cardPoints > 0)
                 {
-                    pointsForCard = pointsForCard + pointsForCard;
+                    totalPoints += (int)Math.Pow(2, cardPoints - 1);
                 }
-
-                if (numberOfWinningMatches == 0)
-                {
-                    pointsForCard = 0;
-                }
-
-                numberOfPoints += pointsForCard;
             }
 
-            return numberOfPoints;
+            return totalPoints;
         }
 
         private object RunPart2(string[] inputData)
         {
-            var scratchCards = parseScratchCards(inputData.ToList());
-            var cardDict = scratchCards.ToDictionary(x => x.CardNumber, x => x);
-            var cardDictIncludingCopies = new Dictionary<int, List<ScratchCard>>();
+            Dictionary<int, int> cardMap = new Dictionary<int, int>();
 
-            int numberOfCardsWon = 0;
-
-            // 1st run
-            foreach (var scratchCard in scratchCards)
+            foreach ((string line, int i) in inputData.Select((line, index) => (line, index)))
             {
-                if (scratchCard.NumberOfWinningMatches > 0)
+                if (!cardMap.ContainsKey(i))
                 {
-                    getCopiesOfFollowupCards(scratchCard.CardNumber, scratchCard.NumberOfWinningMatches, cardDict, cardDictIncludingCopies);
+                    cardMap[i] = 1;
+                }
+
+                var numbers = line.Split(":")[1].Trim();
+                var numberArrays = numbers.Split(" | ").Select(x => x.ExtractInts().ToList()).ToList();
+                var winningNumbers = numberArrays[0];
+                var yourNumbers = numberArrays[1];
+
+                var cardPoints = yourNumbers.Count(q => winningNumbers.Contains(q));
+
+                for (int n = i + 1; n <= i + cardPoints; n++)
+                {
+                    if (!cardMap.ContainsKey(n))
+                    {
+                        cardMap[n] = 1;
+                    }
+
+                    cardMap[n] += cardMap[i];
                 }
             }
 
-            // 2nd run
-
-            foreach (var scratchCardCopies in cardDictIncludingCopies)
-            {
-                foreach (var scratchCard in scratchCardCopies.Value)
-                {
-                    getCopiesOfFollowupCards(scratchCard.CardNumber, scratchCard.NumberOfWinningMatches, cardDict, cardDictIncludingCopies);
-                }
-            }
-
-
-            // Add orignal cards
-            foreach (var scratchCard in scratchCards)
-            {
-                if (cardDictIncludingCopies.ContainsKey(scratchCard.CardNumber))
-                {
-                    cardDictIncludingCopies[scratchCard.CardNumber].Add(scratchCard);
-                }
-                else
-                {
-                    cardDictIncludingCopies.Add(scratchCard.CardNumber, new List<ScratchCard> { scratchCard });
-                }
-            }
-
-            numberOfCardsWon = cardDictIncludingCopies.Sum(x => x.Value.Count);
+            var numberOfCardsWon = cardMap.Values.Sum();
 
             return numberOfCardsWon;
         }
-
-        private void getCopiesOfFollowupCards(int cardNumber, int numberOfWinningMatches, Dictionary<int, ScratchCard> cardDict, Dictionary<int, List<ScratchCard>> cardDictIncludingCopies)
-        {
-            int nextCardNumber = cardNumber + 1;
-
-            for (int cardNo = 0; cardNo < numberOfWinningMatches; cardNo++)
-            {
-                if (cardDict.ContainsKey(nextCardNumber))
-                {
-                    if (cardDictIncludingCopies.ContainsKey(nextCardNumber))
-                    {
-                        cardDictIncludingCopies[nextCardNumber].Add(cardDict[nextCardNumber]);
-                    }
-                    else
-                    {
-                        cardDictIncludingCopies.Add(nextCardNumber, new List<ScratchCard> { cardDict[nextCardNumber] });
-                    }
-                }
-
-                nextCardNumber++;
-            }
-        }
-
-        private List<ScratchCard> parseScratchCards(List<string> scratchCardInput)
-        {
-            var scratchCards = new List<ScratchCard>();
-
-            foreach (var cardInput in scratchCardInput)
-            {
-                var splittedCardInput = cardInput.Split(':');
-
-                var scratchCard = new ScratchCard();
-                scratchCard.CardNumber = getCardNumber(splittedCardInput[0]);
-
-                var cardNumbers = splittedCardInput[1].Trim().Split("|");
-                var winningNumbers = cardNumbers[0].Trim().Split(' ');
-                var scratchedNumbers = cardNumbers[1].Trim().Split(" ");
-
-                foreach (var winningNumber in winningNumbers)
-                {
-                    if (winningNumber != string.Empty)
-                    {
-                        scratchCard.WinningNumbers.Add(int.Parse(winningNumber));
-                    }
-                }
-
-                foreach (var scratchedNumber in scratchedNumbers)
-                {
-                    if (scratchedNumber != string.Empty)
-                    {
-                        scratchCard.ScratchedNumbers.Add(int.Parse(scratchedNumber));
-                    }
-                }
-
-                scratchCards.Add(scratchCard);
-
-            }
-
-            return scratchCards;
-        }
-
-        private int getCardNumber(string value)
-        {
-            return int.Parse(value.Replace("Card ", ""));
-        }
-    }
-
-    class ScratchCard
-    {
-        public ScratchCard()
-        {
-            WinningNumbers = new List<int>();
-            ScratchedNumbers = new List<int>();
-        }
-
-        public int CardNumber { get; set; }
-        public List<int> WinningNumbers { get; set; }
-        public List<int> ScratchedNumbers { get; set; }
-        public int NumberOfWinningMatches => WinningNumbers.Intersect(ScratchedNumbers).ToList().Count();
     }
 }

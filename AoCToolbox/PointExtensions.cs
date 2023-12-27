@@ -110,6 +110,19 @@ public static class PointExtensions
         return result;
     }
 
+    public static double ShoelaceArea(this List<(int Row, int Col)> polygon)
+    {
+        var n = polygon.Count;
+        var result = 0.0;
+        for (var i = 0; i < n - 1; i++)
+        {
+            result += polygon[i].Row * polygon[i + 1].Col - polygon[i + 1].Row * polygon[i].Col;
+        }
+
+        result = Math.Abs(result + polygon[n - 1].Row * polygon[0].Col - polygon[0].Row * polygon[n - 1].Col) / 2.0;
+        return result;
+    }
+
     public static List<Point> GetPointsBetween(this Point p1, Point p2)
     {
         List<Point> points = new List<Point>();

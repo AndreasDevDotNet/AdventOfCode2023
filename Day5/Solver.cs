@@ -6,7 +6,7 @@ namespace Day5
     {
         public override string GetDayString()
         {
-            return "* December 5th: *";
+            return "* December 5th *";
         }
 
         public override string GetDivider()
@@ -26,13 +26,11 @@ namespace Day5
 
         public override object Run(int part)
         {
-            var inputData = GetInputLines();
-            
-
+         
             var value = part switch
             {
                 1 => RunPart1(),
-                2 => 78775051
+                2 => RunPart2(),
             };
 
             return part switch
@@ -44,186 +42,92 @@ namespace Day5
 
         private object RunPart1()
         {
-            using (var reader = GetInputStream())
+            var inputLines = GetInputText().SplitByDoubleNewline();
+
+            var seeds = inputLines[0].Split(':')[1].ExtractLongs().ToList();
+
+            foreach (var block in inputLines.Skip(1))
             {
-                var seeds = GetSeeds(reader);
-                var seedToSoilMap = GetMap(reader, "seed-to-soil map:");
-                var soilToFertilizerMap = GetMap(reader, "soil-to-fertilizer map:");
-                var fertilizerToWaterMap = GetMap(reader, "fertilizer-to-water map:");
-                var waterToLightMap = GetMap(reader, "water-to-light map:");
-                var lightToTemperatureMap = GetMap(reader, "light-to-temperature map:");
-                var temperatureToHumidityMap = GetMap(reader, "temperature-to-humidity map:");
-                var humidityToLocationMap = GetMap(reader, "humidity-to-location map:");
-
-                long lowestLocation = long.MaxValue;
-
-                foreach (var seed in seeds)
+                var ranges = block.Split('\n').Skip(1).Select(line => line.ExtractLongs().ToList()).ToList();
+                var newSeeds = seeds.Select(seed =>
                 {
-                    long currentSeed = seed;
-                    currentSeed = ProcessMap(currentSeed, seedToSoilMap);
-                    currentSeed = ProcessMap(currentSeed, soilToFertilizerMap);
-                    currentSeed = ProcessMap(currentSeed, fertilizerToWaterMap);
-                    currentSeed = ProcessMap(currentSeed, waterToLightMap);
-                    currentSeed = ProcessMap(currentSeed, lightToTemperatureMap);
-                    currentSeed = ProcessMap(currentSeed, temperatureToHumidityMap);
-                    currentSeed = ProcessMap(currentSeed, humidityToLocationMap);
-                    lowestLocation = Math.Min(lowestLocation, currentSeed);
-                }
+                    foreach (var range in ranges)
+                    {
+                        long destinationRangeStart = range[0];
+                        long sourceRangeStart = range[1];
+                        long rangeLength = range[2];
 
-                return lowestLocation;
+                        if (sourceRangeStart <= seed && seed < sourceRangeStart + rangeLength)
+                        {
+                            return seed - sourceRangeStart + destinationRangeStart;
+                        }
+                    }
+                    return seed;
+                }).ToList();
+
+                seeds = newSeeds;
             }
+
+            return seeds.Min();
         }
 
         private object RunPart2()
         {
-            using (var reader = GetInputStream())
+            var inputLines = GetInputText().SplitByDoubleNewline();
+
+            var inputs = inputLines[0].Split(':')[1].ExtractLongs().ToList();
+            var seeds = new List<(long, long)>();
+
+            for (int i = 0; i < inputs.Count; i += 2)
             {
-                var seedRanges = GetSeedRanges(reader);
+                seeds.Add((inputs[i], inputs[i] + inputs[i + 1]));
+            }
 
-                var seedToSoilMap = GetMap(reader, "seed-to-soil map:");
-                var soilToFertilizerMap = GetMap(reader, "soil-to-fertilizer map:");
-                var fertilizerToWaterMap = GetMap(reader, "fertilizer-to-water map:");
-                var waterToLightMap = GetMap(reader, "water-to-light map:");
-                var lightToTemperatureMap = GetMap(reader, "light-to-temperature map:");
-                var temperatureToHumidityMap = GetMap(reader, "temperature-to-humidity map:");
-                var humidityToLocationMap = GetMap(reader, "humidity-to-location map:");
+            foreach (var block in inputLines.Skip(1))
+            {
+                var ranges = block.Split('\n').Skip(1).Select(line => line.ExtractLongs().ToList()).ToList();
+                var newSeeds = new List<(long, long)>();
 
-                long lowestLocation = long.MaxValue;
-
-                foreach (var seedRange in seedRanges)
+                while (seeds.Count > 0)
                 {
-                    for (long i = 0; i < (seedRange.Item1 + seedRange.Item2); i++)
+                    var (seedStart, seedEnd) = seeds.Pop();
+
+                    bool added = false;
+                    foreach (var range in ranges)
                     {
-                        long currentSeed = seedRange.Item1 + i;
+                        long destinationRangeStart = range[0];
+                        long sourceRangeStart = range[1];
+                        long rangeLength = range[2];
 
-                        // Process seed-to-soil map
-                        currentSeed = ProcessMap(currentSeed, seedToSoilMap);
+                        var overlapStart = Math.Max(seedStart, sourceRangeStart);
+                        var overlapEnd = Math.Min(seedEnd, sourceRangeStart + rangeLength);
 
-                        // Process soil-to-fertilizer map
-                        currentSeed = ProcessMap(currentSeed, soilToFertilizerMap);
+                        if (overlapStart < overlapEnd)
+                        {
+                            newSeeds.Add((overlapStart - sourceRangeStart + destinationRangeStart, overlapEnd - sourceRangeStart + destinationRangeStart));
+                            if (overlapStart > seedStart)
+                            {
+                                seeds.Add((seedStart, overlapStart));
+                            }
+                            if (seedEnd > overlapEnd)
+                            {
+                                seeds.Add((overlapEnd, seedEnd));
+                            }
+                            added = true;
+                            break;
+                        }
+                    }
 
-                        // Process fertilizer-to-water map
-                        currentSeed = ProcessMap(currentSeed, fertilizerToWaterMap);
-
-                        // Process water-to-light map
-                        currentSeed = ProcessMap(currentSeed, waterToLightMap);
-
-                        // Process light-to-temperature map
-                        currentSeed = ProcessMap(currentSeed, lightToTemperatureMap);
-
-                        // Process temperature-to-humidity map
-                        currentSeed = ProcessMap(currentSeed, temperatureToHumidityMap);
-
-                        // Process humidity-to-location map
-                        currentSeed = ProcessMap(currentSeed, humidityToLocationMap);
-
-                        // Update lowest location
-                        lowestLocation = Math.Min(lowestLocation, currentSeed);
+                    if(!added)
+                    {
+                        newSeeds.Add((seedStart, seedEnd));
                     }
                 }
-
-                return lowestLocation;
+                seeds = newSeeds;
             }
+
+            return seeds.Min().Item1;
         }
 
-        private long ProcessMap(long seed, List<Tuple<long, long, long>> map)
-        {
-            foreach (var mapEntry in map)
-            {
-                if (seed >= mapEntry.Item2 && seed < mapEntry.Item2 + mapEntry.Item3)
-                {
-                    return mapEntry.Item1 + (seed - mapEntry.Item2);
-                }
-            }
-            return seed;
-        }
-
-        private List<long> GetSeeds(StreamReader reader)
-        {
-            var seedsLine = reader.ReadLine();
-            if (seedsLine != null)
-            {
-                List<long> seeds = seedsLine
-                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                    .Where(s => !string.IsNullOrWhiteSpace(s))
-                    .Select(s =>
-                    {
-                        bool parsed = long.TryParse(s, out long value);
-                        return parsed ? value : -1;
-                    })
-                    .Where(value => value >= 0)
-                    .ToList();
-
-                return seeds;
-            }
-            else
-            {
-                return new List<long>();
-            }
-        }
-
-        private List<Tuple<long, long>> GetSeedRanges(StreamReader reader)
-        {
-            var seedsLine = reader.ReadLine();
-            if (seedsLine != null)
-            {
-                List<Tuple<long, long>> seedRanges = new List<Tuple<long, long>>();
-
-                var seedValues = seedsLine
-                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                    .Where(s => !string.IsNullOrWhiteSpace(s))
-                    .Select(s =>
-                    {
-                        bool parsed = long.TryParse(s, out long value);
-                        return parsed ? value : -1;
-                    })
-                    .Where(value => value >= 0)
-                    .ToList();
-
-                // Iterate through pairs and create ranges
-                for (int i = 0; i < seedValues.Count; i += 2)
-                {
-                    if (i + 1 < seedValues.Count)
-                    {
-                        seedRanges.Add(Tuple.Create(seedValues[i], seedValues[i + 1]));
-                    }
-                    else
-                    {
-                        return new List<Tuple<long, long>>();
-                    }
-                }
-
-                return seedRanges;
-            }
-            else
-            {
-                return new List<Tuple<long, long>>();
-            }
-        }
-
-        private List<Tuple<long, long, long>> GetMap(StreamReader reader, string mapIdentifier)
-        {
-            List<Tuple<long, long, long>> map = new List<Tuple<long, long, long>>();
-
-            string line;
-            while ((line = reader.ReadLine()) != null)
-            {
-                if (line.StartsWith(mapIdentifier))
-                {
-                    break;
-                }
-            }
-
-            while ((line = reader.ReadLine()) != null && !string.IsNullOrWhiteSpace(line))
-            {
-                var parts = line.Split(' ');
-                if (parts.Length == 3)
-                {
-                    map.Add(Tuple.Create(long.Parse(parts[0]), long.Parse(parts[1]), long.Parse(parts[2])));
-                }
-            }
-
-            return map;
-        }
     }
 }

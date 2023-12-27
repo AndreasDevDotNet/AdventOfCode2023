@@ -45,6 +45,7 @@ List<SolverBase> createSolverList()
         new Day22.Solver("22input.txt"),
         new Day23.Solver(){InputPath = "23input.txt"},
         new Day24.Solver(){InputPath = "24input.txt"},
+        new Day25.Solver(){InputPath = "25input.txt"},
     };
 
     return solverList;
