@@ -238,7 +238,7 @@ namespace Day10
                 }
             }
 
-            // number of tiles inside the loop: gridLength * gridWidth - (outsideTiles - loopTiles)
+            // number of tiles inside the loop: gridLength * gridWidth - (outsideTiles,loopTiles)
             return grid.Length * grid[0].Length - (outside.Union(loop)).Count();
         }
 

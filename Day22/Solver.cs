@@ -57,7 +57,7 @@ namespace Day22
 
             return part switch
             {
-                1 => $" Part #1\n  Number of bricks could be safely chosen to disintegrate: {value}",
+                1 => $" Part #1\n  Number of bricks that could safely be chosen to disintegrate: {value}",
                 2 => $" Part #2\n  Number of bricks that would fall Sum(for each brick): {value}",
             };
         }

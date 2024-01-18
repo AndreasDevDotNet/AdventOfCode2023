@@ -52,24 +52,24 @@ namespace Day23
             return findLongestPath(map, false);
         }
 
-        private long findLongestPath(string[] grid, bool useSlopeRules = true)
+        private long findLongestPath(string[] map, bool useSlopeRules = true)
         {
-            var start = (0, Array.IndexOf(grid[0].ToCharArray(), '.'));
-            var end = (grid.Length - 1, Array.IndexOf(grid[^1].ToCharArray(), '.'));
+            var start = (0, Array.IndexOf(map[0].ToCharArray(), '.'));
+            var end = (map.Length - 1, Array.IndexOf(map[^1].ToCharArray(), '.'));
 
             var points = new List<(int, int)> { start, end };
 
-            for (int row = 0; row < grid.Length; row++)
+            for (int row = 0; row < map.Length; row++)
             {
-                for (int col = 0; col < grid[row].Length; col++)
+                for (int col = 0; col < map[row].Length; col++)
                 {
-                    if (grid[row][col] == '#')
+                    if (map[row][col] == '#')
                         continue;
 
                     int neighbors = 0;
                     foreach (var (neighborRow, neighborCol) in new[] { (row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1) })
                     {
-                        if (0 <= neighborRow && neighborRow < grid.Length && 0 <= neighborCol && neighborCol < grid[0].Length && grid[neighborRow][neighborCol] != '#')
+                        if (0 <= neighborRow && neighborRow < map.Length && 0 <= neighborCol && neighborCol < map[0].Length && map[neighborRow][neighborCol] != '#')
                             neighbors++;
                     }
 
@@ -109,12 +109,12 @@ namespace Day23
 
                     if (useSlopeRules)
                     {
-                        foreach (var (dr, dc) in dirs[grid[row][col]])
+                        foreach (var (dr, dc) in dirs[map[row][col]])
                         {
                             var nr = row + dr;
                             var nc = col + dc;
 
-                            if (0 <= nr && nr < grid.Length && 0 <= nc && nc < grid[0].Length && grid[nr][nc] != '#' && !seen.Contains((nr, nc)))
+                            if (0 <= nr && nr < map.Length && 0 <= nc && nc < map[0].Length && map[nr][nc] != '#' && !seen.Contains((nr, nc)))
                             {
                                 stack.Push((length + 1, nr, nc));
                                 seen.Add((nr, nc));
@@ -128,7 +128,7 @@ namespace Day23
                             var nr = row + dr;
                             var nc = col + dc;
 
-                            if (0 <= nr && nr < grid.Length && 0 <= nc && nc < grid[0].Length && grid[nr][nc] != '#' && !seen.Contains((nr, nc)))
+                            if (0 <= nr && nr < map.Length && 0 <= nc && nc < map[0].Length && map[nr][nc] != '#' && !seen.Contains((nr, nc)))
                             {
                                 stack.Push((length + 1, nr, nc));
                                 seen.Add((nr, nc));

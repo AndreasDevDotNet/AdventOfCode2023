@@ -9,7 +9,7 @@ namespace Day25
 
         public override string GetDayString()
         {
-            return "* December 25th *";
+            return "* December 25th (Merry Christmas)*";
         }
 
         public override string GetDivider()
@@ -73,7 +73,7 @@ namespace Day25
 
         private object RunPart2()
         {
-            return "Merry Christmas AoC 2023 is over...";
+            return "AoC 2023 is over...";
         }
 
         private int divideGroups()

@@ -7,7 +7,7 @@ namespace Day24
     {
         public override string GetDayString()
         {
-            return "* December 24th (Merry Christmas) *";
+            return "* December 24th (God Jul) *";
         }
 
         public override string GetDivider()

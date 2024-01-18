@@ -22,45 +22,7 @@ namespace Day18
         }
 
         public override void ShowVisualization()
-        {
-            var inputData = GetInputLines();
-            var lavaTrench = new LavaTrench();
-            var polygon = new List<Point>();
-
-            calculatePolygon(inputData, polygon);
-
-            var lavaDugOutList = new List<LavaTrenchDugOut>();
-            for (int i = 0; i < polygon.Count; i++) 
-            {
-                if (i > 0)
-                {
-                    var previousPos = polygon[i - 1];
-                    
-                    var pointInBetween = previousPos.GetPointsBetween(polygon[i]);
-
-                    if(pointInBetween.Last().X == previousPos.X && pointInBetween.Last().Y == previousPos.Y)
-                    {
-                        pointInBetween.Reverse();
-                    }
-
-                    pointInBetween.RemoveAt(0);
-                    pointInBetween.RemoveAt(pointInBetween.Count - 1);
-
-                    foreach (var point in pointInBetween)
-                    {
-                        lavaDugOutList.Add(new LavaTrenchDugOut { Position = point, CharRepresentation = '#' });
-                    }
-                }
-
-                lavaDugOutList.Add(new LavaTrenchDugOut { Position = polygon[i], CharRepresentation = '#' });
-
-            }
-
-            lavaTrench.WorldObjects = lavaDugOutList;
-
-            var printer = new WorldPrinter(clearScreenFirst: false);
-            printer.Print(lavaTrench);
-            
+        {  
         }
 
         public override object Run(int part)
@@ -82,83 +44,71 @@ namespace Day18
 
         private object RunPart1(string[] inputData)
         {
-            var polygon = new List<Point>();
+            var polygonResult = digOutPolygon(inputData, 1);
 
-            double edge = calculatePolygon(inputData, polygon);
-
-            return polygon.ShoelaceArea() + edge / 2 + 1;
-        }
-
-        private static double calculatePolygon(string[] inputData, List<Point> polygon)
-        {
-            var currentPosition = new Point(0, 0);
-
-            var edge = 0.0;
-
-            foreach (var line in inputData)
-            {
-                polygon.Add(currentPosition);
-                var move = line.Split(' ');
-
-                var length = int.Parse(move[1]);
-                currentPosition = move[0] switch
-                {
-                    "R" => new Point(currentPosition.X + length, currentPosition.Y),
-                    "D" => new Point(currentPosition.X, currentPosition.Y + length),
-                    "L" => new Point(currentPosition.X - length, currentPosition.Y),
-                    "U" => new Point(currentPosition.X, currentPosition.Y - length),
-                    _ => throw new Exception("Unknown direction")
-                };
-
-                edge += length;
-            }
-
-            return edge;
+            return polygonResult.polygon.ShoelaceArea() + polygonResult.boundry / 2 + 1;
         }
 
         private object RunPart2(string[] inputData)
         {
-            var polygon = new List<(long Row, long Col)>();
+            var polygonResult = digOutPolygon(inputData, 2);
 
-            (long Row, long Col) currentPosition = (0, 0);
+            return polygonResult.polygon.ShoelaceArea() + polygonResult.boundry / 2 + 1;
+        }
 
-            var edge = 0.0;
+        private (List<(long row, long col)> polygon, double boundry) digOutPolygon(string[] inputData, int part)
+        {
+            var points = new List<(long, long)> { (0, 0) };
+            double boundry = 0.0;
 
-            foreach (var line in inputData)
+            foreach (string line in inputData)
             {
-                polygon.Add(currentPosition);
+                var ld = parseLengthAndDirection(line, part);
+                boundry += ld.length;
 
-                var hexNumber = line.Split(' ')[2].TrimStart('(').TrimEnd(')');
-                var length = long.Parse(hexNumber[1..^1], NumberStyles.HexNumber);
-
-                currentPosition = hexNumber.Last() switch
-                {
-                    '0' => (currentPosition.Row, currentPosition.Col + length), // R
-                    '1' => (currentPosition.Row + length, currentPosition.Col), // D
-                    '2' => (currentPosition.Row, currentPosition.Col - length), // L
-                    '3' => (currentPosition.Row - length, currentPosition.Col), // U
-                    _ => throw new Exception("Unknown direction")
-                };
-
-                edge += length;
+                (long row, long col) = points[^1];
+                points.Add((row + ld.direction.dirRow * ld.length, col + ld.direction.dirCol * ld.length));
             }
 
-            return polygon.ShoelaceArea() + edge / 2 + 1;
+            return (points, boundry);
         }
 
-        class LavaTrench : IWorld
+        private ((int dirRow, int dirCol) direction, long length) parseLengthAndDirection(string line, int part)
         {
-            public IEnumerable<IWorldObject> WorldObjects { get; set; }
+            var dirs = new Dictionary<char, (int, int)>
+            {
+                { 'U', (-1, 0) },
+                { 'D', (1, 0) },
+                { 'L', (0, -1) },
+                { 'R', (0, 1) }
+            };
+            var dirs2 = new Dictionary<char, (int, int)>
+            {
+                { '3', (-1, 0) },
+                { '2', (0, -1) },
+                { '1', (1, 0) },
+                { '0', (0, 1) }
+            };
+
+            if (part == 1)
+            {
+                string[] parts = line.Split();
+                char dir = parts[0][0];
+                long length = long.Parse(parts[1]);
+
+                (int dirRow, int dirCol) = dirs[dir];
+                return ((dirRow, dirCol), length);
+            }
+            else
+            {
+                var hexNumber = line.Split(' ')[2].TrimStart('(').TrimEnd(')');
+                var length = long.Parse(hexNumber[1..^1], NumberStyles.HexNumber);
+                (int dirRow, int dirCol) = dirs2[hexNumber.Last()];
+                return ((dirRow, dirCol), length);
+            }
+            
         }
 
-        class LavaTrenchDugOut : IWorldObject
-        {
 
-            public Point Position { get; set; }
-
-            public char CharRepresentation { get; set; }
-
-            public int Z => 0;
-        }
     }
 }

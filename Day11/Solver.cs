@@ -8,7 +8,7 @@ namespace Day11
 
         public override string GetDayString()
         {
-            return "* December 11th: *";
+            return "* December 11th *";
         }
 
         public override string GetDivider()
@@ -45,54 +45,62 @@ namespace Day11
 
         private object RunPart1(string[] inputData)
         {
-            return expandSpace(inputData, 2L);
+            return calculateDistanceBetweenGalaxies(inputData, 2L);
         }
 
         private object RunPart2(string[] inputData)
         {
-            return expandSpace(inputData, 1000000L);
+            return calculateDistanceBetweenGalaxies(inputData, 1000000L);
         }
 
-        private long expandSpace(string[] unexpandedSpace, long expandFactor)
+        private long calculateDistanceBetweenGalaxies(string[] unexpandedSpace, long expandFactor)
         {
-            var map = new Dictionary<int, Vector2D>();
-            var rows = Enumerable.Range(start: 0, count: unexpandedSpace.Length).ToHashSet();
-            var cols = Enumerable.Range(start: 0, count: unexpandedSpace[0].Length).ToHashSet();
+            List<int> emptyRows = Enumerable.Range(0, unexpandedSpace.Length)
+                .Where(r => unexpandedSpace[r].All(ch => ch == '.'))
+                .ToList();
 
-            for (var y = 0; y < unexpandedSpace.Length; y++)
-                for (var x = 0; x < unexpandedSpace[0].Length; x++)
+            List<int> emptyCols = Enumerable.Range(0, unexpandedSpace[0].Length)
+                .Where(c => unexpandedSpace.All(row => row[c] == '.'))
+                .ToList();
+
+            List<(int, int)> galaxies = new List<(int, int)>();
+
+            for (int r = 0; r < unexpandedSpace.Length; r++)
+            {
+                for (int c = 0; c < unexpandedSpace[r].Length; c++)
                 {
-                    if (unexpandedSpace[y][x] == Galaxy)
+                    if (unexpandedSpace[r][c] == '#')
                     {
-                        map[map.Count] = new Vector2D(x, y);
-                        cols.Remove(x);
-                        rows.Remove(y);
+                        galaxies.Add((r, c));
                     }
                 }
+            }
 
-            var sum = 0L;
-            var done = new HashSet<(int, int)>();
+            long total = 0;
 
-            foreach (var (id1, pos1) in map)
-                foreach (var (id2, pos2) in map)
+            for (int i = 0; i < galaxies.Count; i++)
+            {
+                int r1 = galaxies[i].Item1;
+                int c1 = galaxies[i].Item2;
+
+                for (int j = 0; j < i; j++)
                 {
-                    if (done.Add((id1, id2)) && done.Add((id2, id1)))
+                    int r2 = galaxies[j].Item1;
+                    int c2 = galaxies[j].Item2;
+
+                    for (int r = Math.Min(r1, r2); r < Math.Max(r1, r2); r++)
                     {
-                        var xMin = Math.Min(pos1.X, pos2.X);
-                        var xMax = Math.Max(pos1.X, pos2.X);
-                        var yMin = Math.Min(pos1.Y, pos2.Y);
-                        var yMax = Math.Max(pos1.Y, pos2.Y);
+                        total += emptyRows.Contains(r) ? expandFactor : 1;
+                    }
 
-                        var dx = (expandFactor - 1) * cols.Count(x => x > xMin && x < xMax);
-                        var dy = (expandFactor - 1) * rows.Count(y => y > yMin && y < yMax);
-
-                        sum += Vector2D.Distance(a: pos1, b: pos2, Metric.Taxicab) + dx + dy;
+                    for (int c = Math.Min(c1, c2); c < Math.Max(c1, c2); c++)
+                    {
+                        total += emptyCols.Contains(c) ? expandFactor : 1;
                     }
                 }
+            }
 
-            return sum;
+            return total;
         }
-
-        
     }
 }
